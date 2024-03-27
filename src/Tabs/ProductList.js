@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import SelectedProduct from "./SelectedProduct";
-import './modal.css'
+import '../assets/modal.css'
 
 // renders the list of products and the active user if one is selected
 const ProductList = ({fetchData}) => {

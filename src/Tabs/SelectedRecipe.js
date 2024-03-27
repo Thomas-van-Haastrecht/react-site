@@ -79,12 +79,7 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, newTitle, setNewTi
                         {recipe.ingredients.map(ingredient => {
                             return (
                                 <>
-                                    {ingredient.productIngredientType == ingredientTypes[0] && //index 0 = milliliter 
-                                    <li key={ingredient.id}>{ingredient.name} {ingredient.amount} {ingredient.productIngredientType}</li>}
-                                    {ingredient.productIngredientType == ingredientTypes[1] && //index 1 = gram 
-                                    <li key={ingredient.id}>{ingredient.name} {ingredient.amount} {ingredient.productIngredientType}</li>}
-                                    {ingredient.productIngredientType == ingredientTypes[2] && //index 0 = stuks 
-                                    <li key={ingredient.id}>{ingredient.name} &times; {ingredient.amount}</li>}
+                                    <li key={ingredient.id}>{ingredient.name} {ingredient.amount} {ingredient.productIngredientType}</li>                                    
                                 </>
                             );
                         })}

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import NavTabs from './NavTabs';
-import UserList from './UserList'
-import RecipeList from './RecipeList'
-import ProductList from './ProductList'
-import CommentList from './CommentList'
-import EventList from './EventList'
+import UserList from '../Tabs/UserList';
+import RecipeList from '../Tabs/RecipeList';
+import ProductList from '../Tabs/ProductList';
+import CommentList from '../Tabs/CommentList';
+import EventList from '../Tabs/EventList';
 
 // renders navigation list and the selected tab
 const Navigation = () => {
