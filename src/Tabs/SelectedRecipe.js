@@ -67,13 +67,40 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, newTitle, setNewTi
         });
         setNewInstructions(updatedInstructions);
     }
+
+    // function which removes an existing ingredient and updates the recipe
+    // id   - id of the ingredient which needs to be removed
+    function removeIngredient(id) {
+        setNewIngredients(previousIngredients => {
+            return previousIngredients.filter(i => i.id != id);
+        });
+        editRecipe(recipe.id, recipe.name, newIngredients, newInstructions);
+    }
+
+    // function which handles when existing ingredients are updated
+    // e   - Event which was triggered (used to get html element and its contents, and to prevent a page reload)
+    function handleIngredientChange(e) {
+        e.preventDefault();
+        var ingredientId = e.target.id;
+        var updatedIngredient = e.target.value;
+        setNewInstructions(previousIngredients => {
+            return previousIngredients.map(ingredient => {
+                if(ingredient.id == ingredientId) { // only update edited ingredient
+                    return updatedIngredient;
+                }
+                return ingredient;
+            });
+        });
+    }
+
     return (
         <div>
             {recipe != null && // only show form if product is not null
                 <div>
                     <h4>Recipe Info</h4>
                     <p>Title: {recipe.title}</p>
-                    <p>Creator: {recipe.creator}</p>
+                    <p>Creator: {recipe.creatorName}</p>
+                    
                     <p>Ingredients:</p>
                     <ul>
                         {recipe.ingredients.map(ingredient => {
@@ -97,6 +124,36 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, newTitle, setNewTi
                                 type="text"
                                 id="title"
                                 placeholder={recipe.title}
+                            />
+                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
+                        </div>
+
+                        {/* input for ingredients */}
+                        <label htmlFor="ingredients" className="control-label">Ingredients:</label>
+                        {newIngredients.map(ingredient => {
+                        return(
+                                <React.Fragment key={ingredient.id}>
+                                    <div className="input-group mx-sm-3 mb-2">
+                                        <input className="form-control"
+                                            value={ingredient}
+                                            onChange={e => {handleIngredientChange(e)}}
+                                            onBlur={() => {}} // to be used for POST
+                                            type="text"
+                                            id={ingredient.id}
+                                        />
+                                        <button className="btn btn-danger bi bi-trash product-trash" onClick={() => removeIngredient(ingredient.id)}></button>
+                                    </div>
+                                </React.Fragment>
+                            );
+                        })}
+
+                        <div className="input-group mx-sm-3 mb-2">
+                            <input className="form-control"
+                                value={newInstruction}
+                                placeholder="Next Instruction Step"
+                                onChange={e => {setNewInstruction(e.target.value)}}
+                                type="text"
+                                id={newInstructions.length}
                             />
                             <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
