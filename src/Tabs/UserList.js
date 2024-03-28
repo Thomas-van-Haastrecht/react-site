@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SelectedUser from "./SelectedUser";
 
 // renders the list of users and the active user if one is selected
@@ -13,7 +13,7 @@ const UserList = ({fetchData, handleTabChange, setActiveRecipe}) => {
         setActiveRecipe(i)
     }
 
-    
+    const cancelButton = useRef(null);
 
     // states keeping track of the list of users and whether GET requests are done and successful
     const [users, setUsers] = useState([])
@@ -154,6 +154,29 @@ const UserList = ({fetchData, handleTabChange, setActiveRecipe}) => {
     // return value (top line provides alternate divs in case loading is not done yet)
     return (!isLoaded ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
         <>
+            <div className="modal" id="deleteUserModal" tabIndex="-1" role="dialog" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-sm mr-5" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="deleteUserModalLabel">Remove User Confirmation</h5>
+                        </div>
+                        <div className="modal-body mr-5" id="toDeleteUserInfo">
+                            {() => {return users.find(u => u.id == activeUser).firstName}}
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-dismiss="modal" ref={cancelButton}>Cancel</button>
+                            <button type="button" className="btn btn-primary" onClick={() => {
+                                const uid = users.find(u => u.id == activeUser).id;
+                                deleteUser(uid);
+
+                                cancelButton.current.click(); // close modal
+                                }
+                            }>Remove</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div className="container-fluid mt-5">
                 <div className="row">
                 <div className="col-4">
@@ -166,7 +189,15 @@ const UserList = ({fetchData, handleTabChange, setActiveRecipe}) => {
                                             <span className="">{user.firstName}</span>
                                         </div>
                                     </div>
-                                    <button className="btn btn-danger bi bi-trash product-trash" onClick={() => {deleteUser(user.id)}}></button>
+                                    <button
+                                        className="btn btn-danger bi bi-trash product-trash"
+                                        onClick={() => {
+                                            setActiveUser(user.id);
+                                            document.getElementById("toDeleteUserInfo").textContent = user.firstName;
+                                        }}
+                                        data-toggle="modal"
+                                        data-target="#deleteUserModal"
+                                    ></button>
                                 </li>
                                 );
                             })
