@@ -1,41 +1,64 @@
 import { useEffect, useRef, useState } from "react";
 import SelectedProduct from "./SelectedProduct";
 import '../assets/modal.css'
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 // renders the list of products and the active user if one is selected
 const ProductList = ({fetchData}) => {
-    // states keeping track of the list of products and whether GET requests are done and successful
-    const [products, setProducts] = useState([])
-    const [packagingInfo, setPackagingInfo] = useState([])
-    const [allergyInfo, setAllergyInfo] = useState([])
-    const [ingredientTypes, setIngredientTypes] = useState([])
-    const [isLoaded, setLoaded] = useState(false)
-    const [LoadFailed, setLoadFailed] = useState(false)
+    // GET methods
+    const {productStatus, productError, data: products} = useQuery({
+        queryKey: ['products'],
+        queryFn: () => {return fetchData('https://localhost:7027/api/products')}
+    })
+    const {packagingStatus, packagingError, data: packagingInfo} = useQuery({
+        queryKey: ['packaging'],
+        queryFn: () => {return fetchData('https://localhost:7027/api/packagingtypes')}
+    })
+    const {allergyStatus, allergyError, data: allergyInfo} = useQuery({
+        queryKey: ['allergies'],
+        queryFn: () => {return fetchData('https://localhost:7027/api/allergies')}
+    })
+    const {ingredientStatus, ingredientError, data: ingredientTypes} = useQuery({
+        queryKey: ['ingredients'],
+        queryFn: () => {return fetchData('https://localhost:7027/api/products/ingredienttypes')}
+    })
+
+    //POST/PUT/DELETE
+    const imageMutation = useMutation({
+        mutationFn: x,
+    })
+    // // states keeping track of the list of products and whether GET requests are done and successful
+    // const [products, setProducts] = useState([])
+    // const [packagingInfo, setPackagingInfo] = useState([])
+    // const [allergyInfo, setAllergyInfo] = useState([])
+    // const [ingredientTypes, setIngredientTypes] = useState([])
+    // const [isLoaded, setLoaded] = useState(false)
+    // const [LoadFailed, setLoadFailed] = useState(false)
 
     // state keeping track of the active product
     const [activeProduct, setActiveProduct] = useState(0);
 
-    // effect which runs on page load and calls the fetchData function to retrieve product list
-    useEffect( () => {
-        /// Create an async function within the useEffect hook
-        const fetch = async(urls) => {
-            await Promise.all(urls.map(url => fetchData(url)))
-            .then(result => {
-                console.log(result)
-                setProducts(result[0])
-                setPackagingInfo(result[1])
-                setAllergyInfo(result[2])
-                setIngredientTypes(result[3])
-            })
-            .catch( err => {
-                console.log(err)
-                setLoadFailed(true)
-            })
-            setLoaded(true)
-        }
-        /// Call the function
-        fetch(['https://localhost:7027/api/products', 'https://localhost:7027/api/packagingtypes', 'https://localhost:7027/api/allergies', 'https://localhost:7027/api/products/ingredienttypes'])
-    }, [])
+    // // effect which runs on page load and calls the fetchData function to retrieve product list
+    // useEffect( () => {
+    //     /// Create an async function within the useEffect hook
+    //     const fetch = async(urls) => {
+    //         await Promise.all(urls.map(url => fetchData(url)))
+    //         .then(result => {
+    //             console.log(result)
+    //             setProducts(result[0])
+    //             setPackagingInfo(result[1])
+    //             setAllergyInfo(result[2])
+    //             setIngredientTypes(result[3])
+    //         })
+    //         .catch( err => {
+    //             console.log(err)
+    //             setLoadFailed(true)
+    //         })
+    //         setLoaded(true)
+    //     }
+    //     /// Call the function
+    //     fetch(['https://localhost:7027/api/products', 'https://localhost:7027/api/packagingtypes', 'https://localhost:7027/api/allergies', 'https://localhost:7027/api/products/ingredienttypes'])
+    // }, [])
 
     // effect which stores product info in local storage whenever users state is changed
     useEffect(() => {
@@ -66,7 +89,7 @@ const ProductList = ({fetchData}) => {
         setNewCalories("");
         setNewSmallestAmount("");
         setNewDescription("");
-        var p = products.find(p => p.id == activeProduct)
+        var p = products?.find(p => p.id == activeProduct)
         var type = p ? p.ingredientType : 'milliliter'; // sets SelectedType to the product's current value
         setSelectedType(type);
         var packaging = p? p.packagingId : 1; // sets SelectedPackaging to the product's current value
@@ -92,7 +115,7 @@ const ProductList = ({fetchData}) => {
                 product, pid, updatedName, updatedPrice, updatedAmount, updatedType,
                 updatedPackagingId, updatedAllergens, updatedCalories, updatedDescription, updatedSmallestAmount);
         })
-        setProducts(changedProducts); // update products value
+        //products = changedProducts; // update products value
         putProduct(pid); // update product with PUT
     }
 
@@ -185,11 +208,12 @@ const ProductList = ({fetchData}) => {
     async function addProduct(p) {
         const newProduct = await postProduct(p); // send POST request to add product
         console.log(newProduct);
-        setProducts(oldProducts => {
+        const addproduct = (oldProducts => {
             var newProducts = [...oldProducts];
             newProducts.push(newProduct);
             return newProducts;
         });
+        products = addproduct(products);
         setActiveProduct(newProduct.id); // display new product form
     }
 
@@ -254,6 +278,8 @@ const ProductList = ({fetchData}) => {
     // reference to the modal close button, so the save changes button can also close
     const closeButton = useRef(null)
 
+    var isLoaded = [productStatus, ingredientStatus, allergyStatus, packagingStatus].every(value => value != 'loading')
+    var LoadFailed = [productStatus, ingredientStatus, allergyStatus, packagingStatus].some(value => value == 'error')
     // return value (top line provides alternate divs in case loading is not done yet)
     return (!isLoaded ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
         <>
