@@ -1,31 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import SelectedComment from "./SelectedComment";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getComments, postComment, putComment } from "../api/comments";
+import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 
-const CommentList = ({fetchData, activeComment, setActiveComment}) => {
-    // state keeping track of the list of comments
-    const [comments, setComments] = useState([])
+const CommentList = ({activeComment, setActiveComment}) => {
+    const queryClient = useQueryClient();
+    // GET method
+    const {status: commentStatus, error: commentError, data: comments} = useQuery({
+        queryKey: ['comments'],
+        queryFn: getComments,
+    })
 
-    const [isLoaded, setLoaded] = useState(false)
-    const [LoadFailed, setLoadFailed] = useState(false)
+    // POST/PUT/DELETE (can probably get rid of post comment - not used by admins)
+    const postCommentMutation = useMutation({
+        mutationFn: postComment,
+        onSuccess: () => {
+            queryClient.refetchQueries({queryKey: ['comments']})
+        },
+    })
 
-    // effect which runs on page load and calls the fetchData function to retrieve product list
-    useEffect( () => {
-        /// Create an async function within the useEffect hook
-        const fetch = async(urls) => {
-            await Promise.all(urls.map(url => fetchData(url)))
-            .then(result => {
-                console.log(result)
-                setComments(result[0])
-            })
-            .catch( err => {
-                console.log(err)
-                setLoadFailed(true)
-            })
-            setLoaded(true)
-        }
-        /// Call the function
-        fetch(['https://localhost:7027/api/comments'])
-    }, [])
+    const putCommentMutation = useMutation({
+        mutationFn: putComment,
+        onSuccess: () => {
+            queryClient.refetchQueries({queryKey: ['comments']})
+        },
+    })
 
     // states to track values of input to the edit fields in selectedComment
     const [newComment, setNewComment] = useState("");
@@ -49,13 +49,12 @@ const CommentList = ({fetchData, activeComment, setActiveComment}) => {
             }
             return comment;
         })
-        setComments(changedComments);
-        putComment(commentId);
+        sendPutComment(commentId);
     }
 
     // function which sends PUT request to update comment
     // cid   - id of the comment (in comments) to be sent
-    function putComment(cid) {
+    function sendPutComment(cid) {
         const comment = comments.find(c => c.id == cid); // find comment
         const commentJSON = JSON.stringify(comment); // make it JSON
         console.log(commentJSON);
@@ -75,7 +74,7 @@ const CommentList = ({fetchData, activeComment, setActiveComment}) => {
 
     // function which sends a DELETE request to the server
     // uid   - id of the comment (in comments) to be sent
-    function deleteComment(cid) {
+    function sendDeleteComment(cid) {
         console.log(comments.find(c => c.id == cid))
         return;
         const comment = comments.find(c => c.id == cid); // find user
@@ -94,26 +93,54 @@ const CommentList = ({fetchData, activeComment, setActiveComment}) => {
             console.log(err)
         })
 
-        setComments(oldComments => {
-            return oldComments.filter(c => c.id !== cid);
-        })
+        // setComments(oldComments => {
+        //     return oldComments.filter(c => c.id !== cid);
+        // })
     }
 
-    return ( !isLoaded ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
+    // reference to the cancel button used to close modal
+    const cancelButton = useRef(null);
+
+    function onModalConfirm() {
+        const cid = comments.find(c => c.id == activeComment).id;
+        sendDeleteComment(cid);
+        setActiveComment(0);
+
+        cancelButton.current.click(); // close modal
+    }
+
+    var isLoading = commentStatus == 'pending'
+    var LoadFailed = commentStatus == 'error'
+    return ( isLoading ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
         <>
+            <ConfirmDeleteModal 
+                modalId={'deleteCommentModal'}
+                modalTitle={'Remove Comment Confirmation'}
+                divInfoId={'toDeleteCommentInfo'}
+                cancelButtonRef={cancelButton}
+                onConfirm={onModalConfirm} />
+
             <div className="container-fluid mt-5">
                 <div className="row">
                 <div className="col-4">
                     <div className="list-group" id="list-tab" role="tablist">
-                        {comments.map( comment => {
+                        {comments.map( (comment, index) => {
                             return (
-                                <li key={comment.id} className="list-group-item d-flex justify-content-between align-items-center" onClick={() => {setActiveComment(comment.id)}}>
+                                <li key={comment.id} className="list-group-item p-0 d-flex justify-content-between align-items-center" onClick={() => {setActiveComment(comment.id)}}>
                                     <div className="align-items-center">
                                         <div className="ms-3">
                                             <span className="">{comment.comment}</span>
                                         </div>
                                     </div>
-                                    <button className="btn btn-danger bi bi-trash product-trash" onClick={() => {deleteComment(comment.id)}}></button>
+                                    <button
+                                        className={"btn btn-danger bi bi-trash product-trash rounded-start-0" + (index > 0 ? " rounded-top-0" : "") + (index < comments.length-1 ? " rounded-bottom-0" : " rounded-bottom-left-0")}
+                                        onClick={() => {
+                                            setActiveComment(comment.id);
+                                            document.getElementById("toDeleteCommentInfo").textContent = comment.comment;
+                                        }}
+                                        data-toggle="modal"
+                                        data-target="#deleteCommentModal"
+                                    ></button>
                                 </li>
                                 );
                             })

@@ -10,8 +10,25 @@
 // userInfo       - state which tracks userInfo (from GET request)
 // isLoaded       - state which tracks whether GET request for UserInfo has completed
 // loadFailed     - state which tracks whether GET request for UserInfo has failed
+
+import { getCommentsByUser } from "../api/comments";
+import { getUser } from "../api/users";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+
 // moveToRecipe   - function which sets active recipe and active tab in order to switch to the view of specified recipe
-const SelectedUser = ({editUser, user, newName, setNewName, newEmail, setNewEmail, newCity, setNewCity, userInfo, isLoaded, loadFailed, moveToRecipe}) => {
+const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setNewEmail, newCity, setNewCity, moveToRecipe, moveToComment}) => {
+
+    // GET methods
+    const {status: userStatus, error: userError, data: userInfo} = useQuery({
+        queryKey: ['users', activeUser],
+        queryFn: () => getUser(activeUser),
+    })
+
+    const {status: commentStatus, error: commentError, data: comments} = useQuery({
+        queryKey: ['userComments', activeUser],
+        queryFn: () => getCommentsByUser(activeUser),
+    })
 
     // function to handle submitting the form
     // e   - Event which was triggered (used to get html element and its contents, and to prevent a page reload)
@@ -35,59 +52,72 @@ const SelectedUser = ({editUser, user, newName, setNewName, newEmail, setNewEmai
 
     // return value (top line provides alternate divs in case loading is not done yet)
     // "user != null && " prevents loading anything if no user exists
+    var isLoading = [userStatus, commentStatus].some(value => value == 'pending')
+    var LoadFailed = [userStatus, commentStatus].some(value => value == 'error')
     return (
         <div>
-            {user != null && (!isLoaded ? <div>Loading...</div> : (loadFailed ? <div>Load Failed, Please try again.</div> :
+            {(isLoading ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
                 <div>
                     <h4>User Info</h4>
                     <form className="form-inline" onSubmit={handleSubmit}>
-                        <input type="hidden" value={user.id} id="uid" />
+                        <input type="hidden" value={activeUser} id="uid" />
 
                         {/* input for name */}
-                        <label htmlFor="name" className="control-label">Name: {user.firstName}</label>
+                        <label htmlFor="name" className="control-label">Name: {userInfo.userFirstName}</label>
                         <div className="input-group mx-sm-3 mb-2">
                             <input className="form-control"
                                 value={newName}
                                 onChange={e => setNewName(e.target.value)}
                                 type="text"
                                 id="name"
-                                placeholder={user.firstName}
+                                placeholder={userInfo.userFirstName}
                             />
                             <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
 
                         {/* input for email */}
-                        <label htmlFor="email" className="control-label">Email: {user.email}</label>
+                        <label htmlFor="email" className="control-label">Email: {userInfo.userEmail}</label>
                         <div className="input-group mx-sm-3 mb-2">
                             <input className="form-control"
                                 value={newEmail}
                                 onChange={e => setNewEmail(e.target.value)}
                                 type="text"
                                 id="email"
-                                placeholder={user.email}
+                                placeholder={userInfo.userEmail}
                             />
                             <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
 
                         {/* input for city */}
-                        <label htmlFor="city" className="control-label">City: {user.cityOfResidence}</label>
+                        <label htmlFor="city" className="control-label">City: {userInfo.userCityOfResidence}</label>
                         <div className="input-group mx-sm-3 mb-2">
                             <input className="form-control"
                                 value={newCity}
                                 onChange={e => setNewCity(e.target.value)}
                                 type="text"
                                 id="city"
-                                placeholder={user.cityOfResidence}
+                                placeholder={userInfo.userCityOfResidence}
                             />
                             <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
                     </form>
+                    
                     {/* recipes, not fully implemented */}
                     <p>Recipes:</p>
                     <ul className="list-group">
-                        {userInfo.favouriteRecipesTitles.map((recipe, index) => {
+                        {userInfo.recipes.map(recipe => {
                             return (
-                                <a key={index} className="list-group-item link-primary" onClick={() => {moveToRecipe(index)}}>{recipe}</a>
+                                <a key={recipe.id} className="list-group-item link-primary" onClick={() => {moveToRecipe(recipe.id)}}>{recipe.title}</a>
+                            )
+                        })}
+                    </ul>
+
+                    {/* comments, not fully implemented */}
+                    <p>Comments:</p>
+                    <ul className="list-group">
+                        {comments.map(comment => {
+                            return (
+                                <a key={comment.id} className="list-group-item link-primary" onClick={() => {moveToComment(comment.id)}}>{comment.comment}</a>
                             )
                         })}
                     </ul>

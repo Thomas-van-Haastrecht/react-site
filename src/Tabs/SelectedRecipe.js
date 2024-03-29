@@ -141,6 +141,9 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, newTitle, setNewTi
                                             type="text"
                                             id={ingredient.id}
                                         />
+                                        <input
+                                            
+                                        />
                                         <button className="btn btn-danger bi bi-trash product-trash" onClick={() => removeIngredient(ingredient.id)}></button>
                                     </div>
                                 </React.Fragment>

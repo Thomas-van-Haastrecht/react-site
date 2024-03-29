@@ -1,32 +1,53 @@
 import { useEffect, useRef, useState } from "react";
 import SelectedProduct from "./SelectedProduct";
 import '../assets/modal.css'
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {getProducts, postProduct, putProduct, getIngredientTypes} from '../api/products'
+import {getPackagingTypes} from '../api/packagingtypes'
+import { getAllergies } from "../api/allergies";
+import { postImage } from "../api/imageobjs";
+import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 
 // renders the list of products and the active user if one is selected
-const ProductList = ({fetchData}) => {
+const ProductList = () => {
+    const queryClient = useQueryClient();
     // GET methods
-    const {productStatus, productError, data: products} = useQuery({
+    const {status: productStatus, error: productError, data: products} = useQuery({
         queryKey: ['products'],
-        queryFn: () => {return fetchData('https://localhost:7027/api/products')}
+        queryFn: getProducts,
     })
-    const {packagingStatus, packagingError, data: packagingInfo} = useQuery({
+    const {status: packagingStatus, error: packagingError, data: packagingInfo} = useQuery({
         queryKey: ['packaging'],
-        queryFn: () => {return fetchData('https://localhost:7027/api/packagingtypes')}
+        queryFn: getPackagingTypes,
     })
-    const {allergyStatus, allergyError, data: allergyInfo} = useQuery({
+    const {status: allergyStatus, error: allergyError, data: allergyInfo} = useQuery({
         queryKey: ['allergies'],
-        queryFn: () => {return fetchData('https://localhost:7027/api/allergies')}
+        queryFn: getAllergies,
     })
-    const {ingredientStatus, ingredientError, data: ingredientTypes} = useQuery({
+    const {status: ingredientStatus, error: ingredientError, data: ingredientTypes} = useQuery({
         queryKey: ['ingredients'],
-        queryFn: () => {return fetchData('https://localhost:7027/api/products/ingredienttypes')}
+        queryFn: getIngredientTypes,
     })
 
     //POST/PUT/DELETE
     const imageMutation = useMutation({
-        mutationFn: x,
+        mutationFn: postImage,
     })
+
+    const postProductMutation = useMutation({
+        mutationFn: postProduct,
+        onSuccess: () => {
+            queryClient.refetchQueries({queryKey: ['products']})
+        },
+    })
+
+    const putProductMutation = useMutation({
+        mutationFn: putProduct,
+        onSuccess: () => {
+            queryClient.refetchQueries({queryKey: ['products']})
+        },
+    })
+
     // // states keeping track of the list of products and whether GET requests are done and successful
     // const [products, setProducts] = useState([])
     // const [packagingInfo, setPackagingInfo] = useState([])
@@ -116,7 +137,7 @@ const ProductList = ({fetchData}) => {
                 updatedPackagingId, updatedAllergens, updatedCalories, updatedDescription, updatedSmallestAmount);
         })
         //products = changedProducts; // update products value
-        putProduct(pid); // update product with PUT
+        sendPutProduct(pid); // update product with PUT
     }
 
     // function which updates products state (called when info is changed in SelectedProduct)
@@ -132,55 +153,67 @@ const ProductList = ({fetchData}) => {
     // description      - new description (if changed, otherwise previous value)
     // smallestAmount   - new smallestAmount (if changed, otherwise previous value)
     function updateProductValues(product, pid, pname, price, amount, type, packagingId, allergens, calories, description, smallestAmount) {
-            if (product.id == pid) { // only edit the correct product
-                product.name = pname;
-                product.price = +price;  // + converts to number
-                product.amount = +amount;
-                product.ingredientType = type;
-                product.packagingid = packagingId;
-                product.packagingName = packagingInfo.find(p => p.id == packagingId).name;
-                product.allergies = allergens.map(id => allergyInfo.find(a => a.id == id));
-                product.calories = +calories;
-                product.description = description;
-                product.smallestAmount = +smallestAmount;
-            }
-            return product;
+        if (product.id == pid) { // only edit the correct product
+            product.name = pname;
+            product.price = +price;  // + converts to number
+            product.amount = +amount;
+            product.ingredientType = type;
+            product.packagingid = packagingId;
+            product.packagingName = packagingInfo.find(p => p.id == packagingId).name;
+            product.allergies = allergens.map(id => allergyInfo.find(a => a.id == id));
+            product.calories = +calories;
+            product.description = description;
+            product.smallestAmount = +smallestAmount;
+        }
+        return product;
     }
-
-    // function which sends new product (need to remove id field, used to find newProduct in product list)
-    // pid   - id of the product (in products) to be sent
-    async function postProduct(product) {
-        const {id, ...rest} = product; // separate id and rest of info
-        const productJSON = JSON.stringify(rest); // make it JSON
-        console.log(productJSON)
-
-        const entry = await fetch('https://localhost:7027/api/products', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: productJSON,
-        })
-        const result = await entry.json();
-        return result;
-    }
-
+        
     // function which sends updated product
     // pid   - id of the product (in products) to be sent
-    function putProduct(pid) {
+    async function sendPutProduct(pid) {
         const product = products.find(p => p.id == pid); // find product
         const productJSON = JSON.stringify(product); // make it JSON
         console.log(productJSON);
 
-        fetch('https://localhost:7027/api/products/'+pid, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: productJSON,
-        })
-        .then(entry => {
+        try {
+            const entry = await putProductMutation.mutateAsync({id: pid, productJSON: productJSON})
             console.log(entry)
-        })
-        .catch( err => {
+        }
+        catch (err) {
             console.log(err)
-        })
+        }
+    }
+
+    // function which adds a product to the list of products and also POSTs it to the database
+    // p   - product to be added
+    async function addProduct(p) {
+        const newProduct = await sendPostProduct(p); // send POST request to add product
+        console.log(newProduct);
+        const addproduct = (oldProducts => {
+            var newProducts = [...oldProducts];
+            newProducts.push(newProduct);
+            return newProducts;
+        });
+        //products = addproduct(products);
+        setActiveProduct(newProduct.id); // display new product form
+    }
+
+    // function which sends new product (need to remove id field, used to find newProduct in product list)
+    // product   - the product to be sent
+    async function sendPostProduct(product) {
+        const {id, ...rest} = product; // separate id and rest of info
+        const productJSON = JSON.stringify(rest); // make it JSON
+        console.log(productJSON)
+
+        try {
+            const entry = await postProductMutation.mutateAsync(productJSON)
+            const result = await entry.json();
+            return result;
+        }
+        catch (err) {
+            console.log(err)
+            // return -1; // potentially return error
+        }
     }
 
     // function which adds a new product with default values to the products list (only gets POSTed if user submits form after)
@@ -203,20 +236,6 @@ const ProductList = ({fetchData}) => {
         return p;
     }
 
-    // function which adds a product to the list of products and also POSTs it to the database
-    // p   - product to be added
-    async function addProduct(p) {
-        const newProduct = await postProduct(p); // send POST request to add product
-        console.log(newProduct);
-        const addproduct = (oldProducts => {
-            var newProducts = [...oldProducts];
-            newProducts.push(newProduct);
-            return newProducts;
-        });
-        products = addproduct(products);
-        setActiveProduct(newProduct.id); // display new product form
-    }
-
     // function which sends a DELETE request to the server
     // pid   - id of the product (in products) to be sent
     function deleteProduct(pid) {
@@ -237,7 +256,7 @@ const ProductList = ({fetchData}) => {
         })
     }
 
-    async function postImage() {
+    async function sendPostImage() {
         if (newImage != '') {
             const [fileType, fileFormat] = newImage.type.split('/');
             console.log(fileType, fileFormat);
@@ -264,25 +283,48 @@ const ProductList = ({fetchData}) => {
             
             const imgJSON = JSON.stringify(img)
 
-            const entry = await fetch('https://localhost:7027/api/imageobj', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: imgJSON,
-            })
-            const result = await entry.json();
-            console.log(result);
-            return result;
+            try {
+                const entry = await imageMutation.mutateAsync(imgJSON)
+                const result = await entry.json();
+                return result;
+            }
+            catch (err) {
+                console.log(err)
+                // return -1; // potentially return error
+            }
         }
     }
 
-    // reference to the modal close button, so the save changes button can also close
-    const closeButton = useRef(null)
+    // reference to the cancel button used to close new product modal
+    const newProductCancelButton = useRef(null)
 
-    var isLoaded = [productStatus, ingredientStatus, allergyStatus, packagingStatus].every(value => value != 'loading')
+    // reference to the cancel button used to close delete modal
+    const confirmDeleteCancelButton = useRef(null);
+
+    function sendDeleteProduct(id) {
+        console.log('fake deleting', id)
+    }
+
+    function onDeleteModalConfirm() {
+        const pid = products.find(p => p.id == activeProduct).id;
+        sendDeleteProduct(pid);
+        setActiveProduct(0);
+
+        confirmDeleteCancelButton.current.click(); // close modal
+    }
+
+    var isLoading = [productStatus, ingredientStatus, allergyStatus, packagingStatus].some(value => value == 'pending')
     var LoadFailed = [productStatus, ingredientStatus, allergyStatus, packagingStatus].some(value => value == 'error')
     // return value (top line provides alternate divs in case loading is not done yet)
-    return (!isLoaded ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
+    return (isLoading ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
         <>
+            <ConfirmDeleteModal 
+                modalId={'deleteProductModal'}
+                modalTitle={'Remove Product Confirmation'}
+                divInfoId={'toDeleteProductInfo'}
+                cancelButtonRef={confirmDeleteCancelButton}
+                onConfirm={onDeleteModalConfirm} />
+
             <div className="modal" id="newProductModal" tabIndex="-1" role="dialog" aria-labelledby="newProductModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-lg mr-5" role="document">
                     <div className="modal-content">
@@ -309,14 +351,14 @@ const ProductList = ({fetchData}) => {
                             isNewProduct={true} />
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-dismiss="modal" ref={closeButton}>Close</button>
+                            <button type="button" className="btn btn-secondary" data-dismiss="modal" ref={newProductCancelButton}>Close</button>
                             <button type="button" className="btn btn-primary" onClick={() => {
                                 //make new product p with values from form
                                 var p = createNewProduct();
                                 p = updateProductValues(p, p.id, newName, newPrice,
                                     newAmount, selectedType, selectedPackaging, selectedAllergens,
                                     newCalories, newDescription, newSmallestAmount);
-                                postImage().then(imgId => {
+                                sendPostImage().then(imgId => {
                                     console.log(imgId);
                                     p.imageObjId = imgId;
                                     console.log(p);
@@ -326,7 +368,7 @@ const ProductList = ({fetchData}) => {
                                     console.log(err);
                                 });
 
-                                closeButton.current.click(); // close modal
+                                newProductCancelButton.current.click(); // close modal
                                 }
                             }>Save changes</button>
                         </div>
@@ -339,15 +381,23 @@ const ProductList = ({fetchData}) => {
                 <div className="row">
                     <div className="col-4">
                         <ul className="list-group" id="list-tab" role="tablist">
-                            {products.map( product => {
+                            {products.map( (product, index) => {
                                 return (
-                                    <li key={product.id} className="list-group-item d-flex justify-content-between align-items-center" onClick={() => {setActiveProduct(product.id)}}>
+                                    <li key={product.id} className="list-group-item p-0 d-flex justify-content-between align-items-center" onClick={() => {setActiveProduct(product.id)}}>
                                         <div className="align-items-center">
                                             <div className="ms-3">
                                                 <span className="">{product.name}</span>
                                             </div>
                                         </div>
-                                        <button className="btn btn-danger bi bi-trash product-trash" onClick={() => {deleteProduct(product.id)}}></button>
+                                        <button
+                                            className={"btn btn-danger bi bi-trash product-trash rounded-start-0" + (index > 0 ? " rounded-top-0" : "") + (index < products.length-1 ? " rounded-bottom-0" : " rounded-bottom-left-0")}
+                                            onClick={() => {
+                                                setActiveProduct(product.id);
+                                                document.getElementById("toDeleteProductInfo").textContent = product.name;
+                                            }}
+                                            data-toggle="modal"
+                                            data-target="#deleteProductModal"
+                                        ></button>
                                     </li>
                                     );
                                 })

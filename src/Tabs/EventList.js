@@ -1,31 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import SelectedEvent from "./SelectedEvent";
+import { getEvents, postEvent, putEvent } from "../api/events";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 
-const EventList = ({fetchData}) => {
-    // state keeping track of the list of events
-    const [events, setEvents] = useState([])
+const EventList = () => {
+    const queryClient = useQueryClient();
+    // GET method
+    const {status: eventStatus, error: eventError, data: events} = useQuery({
+        queryKey: ['events'],
+        queryFn: getEvents,
+    })
 
-    const [isLoaded, setLoaded] = useState(false)
-    const [LoadFailed, setLoadFailed] = useState(false)
+    // POST/PUT/DELETE
+    const postEventMutation = useMutation({
+        mutationFn: postEvent,
+        onSuccess: () => {
+            queryClient.refetchQueries({queryKey: ['events']})
+        },
+    })
 
-    // effect which runs on page load and calls the fetchData function to retrieve product list
-    useEffect( () => {
-        /// Create an async function within the useEffect hook
-        const fetch = async(urls) => {
-            await Promise.all(urls.map(url => fetchData(url)))
-            .then(result => {
-                console.log(result)
-                setEvents(result[0])
-            })
-            .catch( err => {
-                console.log(err)
-                setLoadFailed(true)
-            })
-            setLoaded(true)
-        }
-        /// Call the function
-        fetch(['https://localhost:7027/api/events'])
-    }, [])
+    const putEventMutation = useMutation({
+        mutationFn: putEvent,
+        onSuccess: () => {
+            queryClient.refetchQueries({queryKey: ['events']})
+        },
+    })
 
     // states keeping track of the active event
     const [activeEvent, setActiveEvent] = useState(0)
@@ -62,9 +62,9 @@ const EventList = ({fetchData}) => {
             console.log(err)
         })
 
-        setEvents(oldEvents => {
-            return oldEvents.filter(e => e.id !== eid);
-        })
+        //setEvents(oldEvents => {
+        //    return oldEvents.filter(e => e.id !== eid);
+        //})
     }
 
     function editEvent(eventId, updatedTitle, updatedDescription, updatedPlace, updatedPrice, updatedStartTime, updatedEndTime, updatedDate, updatedMaxParticipants, updatedParticipants) {
@@ -82,25 +82,57 @@ const EventList = ({fetchData}) => {
             }
             return event;
         })
-        setEvents(changedEvents);
+        //setEvents(changedEvents);
         //putEvent(eventId);
     }
 
-    return ( !isLoaded ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
+    function sendDeleteEvent(id) {
+        console.log('fake deleting', id)
+    }
+
+    // reference to the cancel button used to close modal
+    const cancelButton = useRef(null);
+
+    function onModalConfirm() {
+        const eid = events.find(e => e.id == activeEvent).id;
+        sendDeleteEvent(eid);
+        setActiveEvent(0);
+
+        cancelButton.current.click(); // close modal
+    }
+
+    var isLoading = eventStatus == 'pending'
+    var LoadFailed = eventStatus == 'error'
+    return ( isLoading ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
         <>
+            <ConfirmDeleteModal 
+                modalId={'deleteEventModal'}
+                modalTitle={'Remove Event Confirmation'}
+                divInfoId={'toDeleteEventInfo'}
+                cancelButtonRef={cancelButton}
+                onConfirm={onModalConfirm} />
+
             <div className="container-fluid mt-5">
                 <div className="row">
                 <div className="col-4">
                     <div className="list-group" id="list-tab" role="tablist">
-                        {events.map( event => {
+                        {events.map( (event, index) => {
                             return (
-                                <li key={event.id} className="list-group-item d-flex justify-content-between align-items-center" onClick={() => {setActiveEvent(event.id)}}>
+                                <li key={event.id} className="list-group-item p-0 d-flex justify-content-between align-items-center" onClick={() => {setActiveEvent(event.id)}}>
                                     <div className="align-items-center">
                                         <div className="ms-3">
                                             <span className="">{event.title}</span>
                                         </div>
                                     </div>
-                                    <button className="btn btn-danger bi bi-trash product-trash" onClick={() => {deleteEvent(event.id)}}></button>
+                                    <button
+                                        className={"btn btn-danger bi bi-trash product-trash rounded-start-0" + (index > 0 ? " rounded-top-0" : "") + (index < events.length-1 ? " rounded-bottom-0" : " rounded-bottom-left-0")}
+                                        onClick={() => {
+                                            setActiveEvent(event.id);
+                                            document.getElementById("toDeleteEventInfo").textContent = event.title;
+                                        }}
+                                        data-toggle="modal"
+                                        data-target="#deleteEventModal"
+                                    ></button>
                                 </li>
                                 );
                             })
