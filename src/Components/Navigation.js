@@ -24,29 +24,16 @@ const Navigation = () => {
         setActiveRecipe(0);
     }
 
-    // function to fetch GET request (used in each list component, so it resides here to avoid repetition)
-    // url   - url to fetch from
-    function fetchData (url) {
-        return new Promise( (resolve, reject) => {
-            fetch(url) 
-                .then(response => response.json())
-                .then(result => {
-                    resolve(result)
-                })
-                .catch(err => {reject(err)})
-        })
-    }
-
     return (
         <>
             <NavTabs list={tabs} update={handleTabChange} active={activeTab}/>
             {
                 { //workaround for switch statement
-                    'Users': <UserList fetchData={fetchData} handleTabChange={handleTabChange} setActiveRecipe={setActiveRecipe} />,
-                    'Recipes': <RecipeList fetchData={fetchData} activeRecipe={activeRecipe} setActiveRecipe={setActiveRecipe} />,
-                    'Products': <ProductList fetchData={fetchData} />,
-                    'Comments': <CommentList fetchData={fetchData} activeComment={activeComment} setActiveComment={setActiveComment} />,
-                    'Events': <EventList fetchData={fetchData} />
+                    'Users': <UserList handleTabChange={handleTabChange} setActiveRecipe={setActiveRecipe} setActiveComment={setActiveComment} />,
+                    'Recipes': <RecipeList activeRecipe={activeRecipe} setActiveRecipe={setActiveRecipe} />,
+                    'Products': <ProductList />,
+                    'Comments': <CommentList activeComment={activeComment} setActiveComment={setActiveComment} />,
+                    'Events': <EventList />
                 }[tabs[activeTab]]
             }
         </>
