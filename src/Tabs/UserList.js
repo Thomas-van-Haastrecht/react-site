@@ -9,21 +9,9 @@ import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 // renders the list of users and the active user if one is selected
 // handleTabChange   - function to switch to a different tab (used when clicking on a recipe made by a user)
 // setActiveRecipe   - function used to set the active recipe (used when clicking on a recipe made by a user)
-const UserList = ({handleTabChange, setActiveRecipe, setActiveComment}) => {
+const UserList = ({moveToComment, moveToRecipe}) => {
 
-    // wrapper function to change to a recipe page (this way only one function needs to be passed down to SelectedUser)
-    // i   - index of the recipe to be made active
-    function moveToRecipe(i) {
-        handleTabChange('Recipes')
-        setActiveRecipe(i)
-    }
-
-    // wrapper function to change to a comment page (this way only one function needs to be passed down to SelectedUser)
-    // i   - index of the comment to be made active
-    function moveToComment(i) {
-        handleTabChange('Comments')
-        setActiveComment(i)
-    }
+    
 
     // reference to the cancel button used to close modal
     const cancelButton = useRef(null);
@@ -45,7 +33,8 @@ const UserList = ({handleTabChange, setActiveRecipe, setActiveComment}) => {
 
     const deleteUserMutation = useMutation({
         mutationFn: deleteUser,
-        onSuccess: () => {
+        onSuccess: (data, id) => {
+            queryClient.removeQueries({queryKey: ['users', id]})
             queryClient.refetchQueries({queryKey: ['users']})
         },
     })
@@ -78,7 +67,7 @@ const UserList = ({handleTabChange, setActiveRecipe, setActiveComment}) => {
     // updatedEmail   - new email (if changed, otherwise previous value)
     // updatedCity    - new city (if changed, otherwise previous value)
     function editUser(uid, updatedName, updatedEmail, updatedCity) {
-        var changedUsers = users.map(user => {
+        users.map(user => {
             if (user.id == uid) { // only edit the correct user
                 user.firstName = updatedName;
                 user.email = updatedEmail;

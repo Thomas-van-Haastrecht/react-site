@@ -75,12 +75,13 @@ const SelectedProduct = ({
         <div>
             {product != null && // only show form if product is not null
                 <div>
+                    <h4>Info for "{product.name}"</h4>
                     <form className="form-inline" onSubmit={e => handleSubmit(e)} style={{"paddingRight": "5%"}}>
                         <input type="hidden" value={product.id} id="pid" />
 
                         {/* input for name */}
-                        <label htmlFor="name" className="control-label">Name: {product.name}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Name</div>
                             <input className="form-control"
                                 value={newName}
                                 onChange={e => setNewName(e.target.value)}
@@ -96,9 +97,9 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for price */}
-                        <label htmlFor="price" className="control-label">Price: €{product.price}</label>
                         <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text">€</div>
+                            <div className="input-group-prepend input-group-text form-begin-tag">Price</div>
+                            <div className="input-group-prepend input-group-text bg-white">€</div>
                             <input className="form-control"
                                 value={newPrice}
                                 onChange={e => setNewPrice(e.target.value)}
@@ -115,8 +116,8 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for amount */}
-                        <label htmlFor="amount" className="control-label">Amount: {product.amount} {product.ingredientType}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Amount</div>
                             <input className="form-control"
                                 value={newAmount}
                                 onChange={e => setNewAmount(e.target.value)}
@@ -152,8 +153,8 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for calories */}
-                        <label htmlFor="calories" className="control-label">calories: {product.calories}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Calories</div>
                             <input className="form-control"
                                 value={newCalories}
                                 onChange={e => setNewCalories(e.target.value)}
@@ -170,9 +171,9 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for description */}
-                        <label htmlFor="description" className="control-label">Description:</label>
                         <div className="input-group mx-sm-3 mb-2">
-                            <input className="form-control"
+                            <div className="input-group-prepend input-group-text form-begin-tag">Description</div>
+                            <textarea className="form-control"
                                 value={newDescription}
                                 onChange={e => setNewDescription(e.target.value)}
                                 onBlur={e => {
@@ -187,8 +188,8 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for smallestAmount */}
-                        <label htmlFor="smallestAmount" className="control-label">Smallest Amount: {product.smallestAmount}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Minimum</div>
                             <input className="form-control"
                                 value={newSmallestAmount}
                                 onChange={e => setNewSmallestAmount(e.target.value)}
@@ -206,8 +207,8 @@ const SelectedProduct = ({
 
                         {/* input for packaging types */}
                         <input type='hidden' value={product.packagingId} name='packagingId'></input>
-                        <label htmlFor="amount" className="control-label">Packaging Type: {product.packagingName}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Packaging</div>
                             <select
                                 name='packaging'
                                 id='packaging'
@@ -228,8 +229,9 @@ const SelectedProduct = ({
                                 })}
                             </select>
                         </div>
+
                         {/* input for allergens */}
-                        <label htmlFor="amount" className="control-label">Allergens:</label>
+                        <label htmlFor="" className="control-label">Allergens:</label>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className='row'>
                                 {allergyInfo.map(a => {
@@ -259,12 +261,13 @@ const SelectedProduct = ({
                         {/* input for file */}
                         {isNewProduct && // only show new image upload for new images
                         <>
-                            <label htmlFor="amount" className="control-label">Image:</label>
                             <div className="input-group mx-sm-3 mb-2">
-                                <input
+                                <label htmlFor="image" className="input-group-prepend input-group-text form-begin-tag">Image</label>
+                                <input className="form-control"
                                     type='file'
+                                    id='image'
                                     name='image'
-                                    inputProps={{ accept: 'image/*' }}
+                                    inputprops={{ accept: 'image/*' }}
                                     required
                                     onChange={handleImage}/>
                             </div>

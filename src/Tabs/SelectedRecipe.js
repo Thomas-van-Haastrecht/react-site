@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import React from "react";
+import '../assets/form.css'
 
 // renders edit form for the selected recipe as well as its info
 // editRecipe             - function to change recipe (called when submitting form)
@@ -10,9 +11,13 @@ import React from "react";
 // setNewIngredients      - function to change newIngredients state
 // newInstructions        - state of value in the Instructions edit field
 // setNewInstructions     - function to change newInstructions state
-const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, newTitle, setNewTitle, newIngredients, setNewIngredients, newInstructions, setNewInstructions}) => {
+const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle, setNewTitle, newIngredients, setNewIngredients, newInstructions, setNewInstructions, moveToComment}) => {
     // state tracking the new instruction field (empty field after last existing instruction)
     const [newInstruction, setNewInstruction] = useState("");
+    const [newAmount, setNewAmount] = useState(0);
+    const [selectedType, setSelectedType] = useState("");
+
+    const form = useRef(null);
 
     // effect which adds newInstruction to the recipe's instructions if newInstruction changes
     useEffect(() => {
@@ -24,7 +29,6 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, newTitle, setNewTi
         }
         if (newInstructions.length > 0) {
             var textbox = document.getElementById(newInstructions.length-1);
-            console.log(newInstructions.length-1, textbox);
     
             textbox.focus();
         }
@@ -50,7 +54,7 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, newTitle, setNewTi
     // index   - index of the instruction which needs to be removed
     function removeInstruction(index) {
         newInstructions.splice(index, 1); // splice(x, y) removes y elements starting at index x
-        editRecipe(recipe.id, recipe.name, newIngredients, newInstructions);
+        editRecipe(recipe.id, recipe.title, newIngredients, newInstructions);
     }
 
     // function which handles when existing instructions are updated
@@ -74,50 +78,43 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, newTitle, setNewTi
         setNewIngredients(previousIngredients => {
             return previousIngredients.filter(i => i.id != id);
         });
-        editRecipe(recipe.id, recipe.name, newIngredients, newInstructions);
+        editRecipe(recipe.id, recipe.title, newIngredients, newInstructions);
     }
 
     // function which handles when existing ingredients are updated
     // e   - Event which was triggered (used to get html element and its contents, and to prevent a page reload)
-    function handleIngredientChange(e) {
-        e.preventDefault();
-        var ingredientId = e.target.id;
-        var updatedIngredient = e.target.value;
-        setNewInstructions(previousIngredients => {
+    function handleIngredientChange(ingredientId, form) {
+        var updatedAmount = form[ingredientId+'_amount'].value;
+        var updatedProductId = form[ingredientId+'_product'].value;
+
+        setNewIngredients(previousIngredients => {
             return previousIngredients.map(ingredient => {
-                if(ingredient.id == ingredientId) { // only update edited ingredient
-                    return updatedIngredient;
+                if (ingredient.id == ingredientId) { // only edit the correct user
+                    ingredient.amount = updatedAmount;
+                    var product = products.find(p => p.id == updatedProductId)
+                    ingredient.name = product.name;
+                    ingredient.productId = product.id;
+                    ingredient.productName = product.name;
+                    ingredient.productIngredientType = product.ingredientType;
                 }
                 return ingredient;
-            });
+            })
         });
+        editRecipe(recipe.id, recipe.title, newIngredients, newInstructions);
     }
 
     return (
         <div>
             {recipe != null && // only show form if product is not null
                 <div>
-                    <h4>Recipe Info</h4>
-                    <p>Title: {recipe.title}</p>
-                    <p>Creator: {recipe.creatorName}</p>
-                    
-                    <p>Ingredients:</p>
-                    <ul>
-                        {recipe.ingredients.map(ingredient => {
-                            return (
-                                <>
-                                    <li key={ingredient.id}>{ingredient.name} {ingredient.amount} {ingredient.productIngredientType}</li>                                    
-                                </>
-                            );
-                        })}
-                    </ul>
+                    <h4>Info for "{recipe.title}"</h4>
 
-                    <form className="form-inline" onSubmit={handleSubmit}>
+                    <form className="form-inline" onSubmit={handleSubmit} ref={form}>
                         <input type="hidden" value={recipe.id} id="recipeId" />
 
                         {/* input for title */}
-                        <label htmlFor="title" className="control-label">Title: {recipe.title}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Title</div>
                             <input className="form-control"
                                 value={newTitle}
                                 onChange={e => setNewTitle(e.target.value)}
@@ -134,23 +131,51 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, newTitle, setNewTi
                         return(
                                 <React.Fragment key={ingredient.id}>
                                     <div className="input-group mx-sm-3 mb-2">
-                                        <input className="form-control"
-                                            value={ingredient}
-                                            onChange={e => {handleIngredientChange(e)}}
-                                            onBlur={() => {}} // to be used for POST
-                                            type="text"
-                                            id={ingredient.id}
+                                        <select
+                                            name='product'
+                                            id={ingredient.id + "_product"}
+                                            value={ingredient.productId}
+                                            required
+                                            className='form-control form-row-large'
+                                            onChange={(e) => {
+                                                e.preventDefault();
+                                                handleIngredientChange(ingredient.id, e.target.parentElement.parentElement)
+                                                }
+                                            }
+                                        >
+                                            {products.map(p => {
+                                                return (
+                                                    <option key={p.id} value={p.id} hidden={recipe.ingredients.some(i => i.productId == p.id && i.productId != ingredient.productId)}>{p.name}</option>
+                                                )
+                                            })}
+                                        </select>
+                                        {/* input for amount */}
+                                        <input className="form-control form-row-small"
+                                            value={ingredient.amount}
+                                            onChange={e => {
+                                                e.preventDefault();
+                                                handleIngredientChange(ingredient.id, e.target.parentElement.parentElement);
+                                            }}
+                                            onBlur={e => {
+                                                //e.target = e.target.parentElement.parentElement; // set target to the form
+                                                //handleSubmit(e);
+                                                }
+                                            }
+                                            type="number"
+                                            step="any"
+                                            id={ingredient.id + "_amount"}
+                                            placeholder={ingredient.amount}
                                         />
-                                        <input
-                                            
-                                        />
+                                        <div className="input-group-append input-group-text w-25">{ingredient.productIngredientType}</div>
                                         <button className="btn btn-danger bi bi-trash product-trash" onClick={() => removeIngredient(ingredient.id)}></button>
                                     </div>
                                 </React.Fragment>
                             );
                         })}
 
-                        <div className="input-group mx-sm-3 mb-2">
+                        <div>&nbsp;</div>
+
+                        {/* <div className="input-group mx-sm-3 mb-2">
                             <input className="form-control"
                                 value={newInstruction}
                                 placeholder="Next Instruction Step"
@@ -159,7 +184,7 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, newTitle, setNewTi
                                 id={newInstructions.length}
                             />
                             <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
-                        </div>
+                        </div> */}
 
                         {/* input for instructions */}
                         <label htmlFor="instructions" className="control-label">Instructions:</label>
@@ -193,7 +218,14 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, newTitle, setNewTi
                             <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
                     </form>
-                    <p>Comments: {recipe.comments}</p>
+                    <p>Comments:</p>
+                    <ul className="list-group">
+                        {recipe.comments.map(comment => {
+                            return (
+                                <a key={comment.id} className="list-group-item link-primary" onClick={() => {moveToComment(comment.id)}}>{comment.comment}</a>
+                            )
+                        })}
+                    </ul>
 
                 </div>
             }

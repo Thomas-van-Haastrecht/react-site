@@ -1,0 +1,13 @@
+.form-row-large {
+    flex: 2 1 auto !important;
+}
+
+.form-row-small {
+    flex: 0.5 0.5 auto !important;
+}
+
+.form-begin-tag {
+    justify-content: flex-end;
+    width: 15%;
+    min-width: 100px;
+}

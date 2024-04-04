@@ -131,7 +131,7 @@ const ProductList = () => {
     // updatedDescription      - new description (if changed, otherwise previous value)
     // updatedSmallestAmount   - new smallestAmount (if changed, otherwise previous value)
     function editProduct(pid, updatedName, updatedPrice, updatedAmount, updatedType, updatedPackagingId, updatedAllergens, updatedCalories, updatedDescription, updatedSmallestAmount) {
-        var changedProducts = products.map(product => {
+        products.map(product => {
             return updateProductValues(
                 product, pid, updatedName, updatedPrice, updatedAmount, updatedType,
                 updatedPackagingId, updatedAllergens, updatedCalories, updatedDescription, updatedSmallestAmount);

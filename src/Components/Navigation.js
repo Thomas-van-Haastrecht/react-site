@@ -24,13 +24,27 @@ const Navigation = () => {
         setActiveRecipe(0);
     }
 
+    // wrapper function to change to a recipe page (this way only one function needs to be passed down to SelectedUser)
+    // i   - index of the recipe to be made active
+    function moveToRecipe(i) {
+        handleTabChange('Recipes')
+        setActiveRecipe(i)
+    }
+
+    // wrapper function to change to a comment page (this way only one function needs to be passed down to SelectedUser)
+    // i   - index of the comment to be made active
+    function moveToComment(i) {
+        handleTabChange('Comments')
+        setActiveComment(i)
+    }
+
     return (
         <>
             <NavTabs list={tabs} update={handleTabChange} active={activeTab}/>
             {
                 { //workaround for switch statement
-                    'Users': <UserList handleTabChange={handleTabChange} setActiveRecipe={setActiveRecipe} setActiveComment={setActiveComment} />,
-                    'Recipes': <RecipeList activeRecipe={activeRecipe} setActiveRecipe={setActiveRecipe} />,
+                    'Users': <UserList moveToComment={moveToComment} moveToRecipe={moveToRecipe} />,
+                    'Recipes': <RecipeList activeRecipe={activeRecipe} setActiveRecipe={setActiveRecipe} moveToComment={moveToComment} />,
                     'Products': <ProductList />,
                     'Comments': <CommentList activeComment={activeComment} setActiveComment={setActiveComment} />,
                     'Events': <EventList />

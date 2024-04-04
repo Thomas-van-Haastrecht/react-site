@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import React from "react";
+import '../assets/form.css'
 
 // renders edit form for the selected recipe as well as its info
 // editRecipe             - function to change recipe (called when submitting form)
@@ -14,7 +15,6 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
     newPlace, setNewPlace, newPrice, setNewPrice, newStartTime, setNewStartTime, newEndTime, setNewEndTime,
     newDate, setNewDate, newMaxParticipants, setNewMaxParticipants, newParticipants, setNewParticipants}) => {
     console.log(event)
-
     // function to handle submitting the form
     // e   - Event which was triggered (used to get html element and its contents, and to prevent a page reload)
     function handleSubmit(e) {
@@ -31,7 +31,7 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
         const updatedEndTime = e.target.endTime.value ? e.target.endTime.value : e.target.endTime.placeholder;
         const updatedMaxParticipants = e.target.maxParticipants.value ? e.target.maxParticipants.value : e.target.maxParticipants.placeholder;
 
-        console.log(updatedTitle, updatedDescription, updatedPlace, updatedPrice, updatedDate, updatedStartTime, updatedEndTime, updatedMaxParticipants)
+        editEvent(eventId, updatedTitle, updatedDescription, updatedPlace, updatedPrice, updatedDate, updatedStartTime, updatedEndTime, updatedMaxParticipants)
         // call edit function so user gets new information
         //editComment(recipeId, updatedName, newIngredients, newInstructions);
         
@@ -43,12 +43,13 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
         <div>
             {event != null && // only show form if product is not null
                 <div>
+                    <h4>Info for "{event.title}"</h4>
                     <form className="form-inline" onSubmit={handleSubmit}>
                         <input type="hidden" value={event.id} id="eventId" />
 
                         {/* input for title */}
-                        <label htmlFor="title" className="control-label">Title: {event.title}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Title</div>
                             <input className="form-control"
                                 value={newTitle}
                                 onChange={e => setNewTitle(e.target.value)}
@@ -60,8 +61,8 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                         </div>
 
                         {/* input for description */}
-                        <label htmlFor="description" className="control-label">Description:</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Description</div>
                             <textarea className="form-control"
                                 value={newDescription}
                                 onChange={e => setNewDescription(e.target.value)}
@@ -73,8 +74,8 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                         </div>
 
                         {/* input for place */}
-                        <label htmlFor="place" className="control-label">Place: {event.place}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Place</div>
                             <input className="form-control"
                                 value={newPlace}
                                 onChange={e => setNewPlace(e.target.value)}
@@ -86,10 +87,10 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                         </div>
 
                         {/* input for price */}
-                        <label htmlFor="price" className="control-label">Price: €{event.price}</label>
                         <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text">€</div>
-                            <input className="form-control"
+                            <div className="input-group-prepend input-group-text form-begin-tag">Price</div>
+                            <div className="input-group-prepend input-group-text bg-white">€</div>
+                            <input className="form-control border-left-0"
                                 value={newPrice}
                                 onChange={e => setNewPrice(e.target.value)}
                                 onBlur={e => {
@@ -105,8 +106,8 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                         </div>
 
                         {/* input for date */}
-                        <label htmlFor="date" className="control-label">Date: {event.date}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Date</div>
                             <input className="form-control"
                                 value={newDate}
                                 onChange={e => setNewDate(e.target.value)}
@@ -118,8 +119,8 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                         </div>
                         
                         {/* input for start time */}
-                        <label htmlFor="startTime" className="control-label">Start: {event.startTime}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Start Time</div>
                             <input className="form-control"
                                 value={newStartTime}
                                 onChange={e => setNewStartTime(e.target.value)}
@@ -132,8 +133,8 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                         </div>
 
                         {/* input for end time */}
-                        <label htmlFor="endTime" className="control-label">End: {event.endTime}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                        <div className="input-group-prepend input-group-text form-begin-tag">End Time</div>
                             <input className="form-control"
                                 value={newEndTime}
                                 onChange={e => setNewEndTime(e.target.value)}
@@ -146,8 +147,8 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                         </div>
 
                         {/* input for max participants */}
-                        <label htmlFor="maxParticipants" className="control-label">Capacity: {event.maxParticipants}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Capacity</div>
                             <input className="form-control"
                                 value={newMaxParticipants}
                                 onChange={e => setNewMaxParticipants(e.target.value)}
@@ -163,6 +164,16 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                             />
                         </div>
                     </form>
+
+                    {/* comments, not fully implemented */}
+                    <p>Participant List:</p>
+                    <ul className="list-group">
+                        {event.eventParticipantName.map((participant, index) => {
+                            return (
+                                <a key={'paricipant_'+index} className="list-group-item link-primary">{participant}</a>
+                            )
+                        })}
+                    </ul>
 
                 </div>
             }

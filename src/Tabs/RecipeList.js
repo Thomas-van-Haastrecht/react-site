@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import SelectedRecipe from "./SelectedRecipe";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getIngredientTypes } from "../api/products";
-import { getRecipes } from "../api/recipes";
+import { getIngredientTypes, getProducts } from "../api/products";
+import { getRecipes, putRecipe } from "../api/recipes";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 
 // renders the list of recipes and the active recipe if one is selected (activeRecipe state lifted to parent so it can be used by other tabs)
 // activeRecipe      - state tracking which user is active
 // setActiveRecipe   - function used to set the active recipe
-const RecipeList = ({activeRecipe, setActiveRecipe}) => {
+const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
+
     const queryClient = useQueryClient();
     // GET methods
     const {status: recipeStatus, error: recipeError, data: recipes} = useQuery({
@@ -18,6 +19,18 @@ const RecipeList = ({activeRecipe, setActiveRecipe}) => {
     const {status: ingredientStatus, error: ingredientError, data: ingredientTypes} = useQuery({
         queryKey: ['ingredients'],
         queryFn: getIngredientTypes,
+    })
+    const {status: productStatus, error: productError, data: products} = useQuery({
+        queryKey: ['products'],
+        queryFn: getProducts,
+    })
+
+    //PUT/DELETE methods
+    const putRecipeMutation = useMutation({
+        mutationFn: putRecipe,
+        onSuccess: () => {
+            queryClient.refetchQueries({queryKey: ['recipes']})
+        },
     })
 
     // effect which stores recipe info in local storage whenever recipes state is changed
@@ -46,16 +59,28 @@ const RecipeList = ({activeRecipe, setActiveRecipe}) => {
     // updatedIngredients    - new ingredients (if changed, otherwise previous value)
     // updatedInstructions   - new instructions (if changed, otherwise previous value)
     function editRecipe(recipeId, updatedTitle, updatedIngredients, updatedInstructions) {
-        console.log(recipes)
-        var changedRecipes = recipes.map(recipe => {
-            if (recipe.id == recipeId) {
-                recipe.title = updatedTitle;
-                recipe.ingredients = updatedIngredients;
-                recipe.instructions = updatedInstructions;
-            }
-            return recipe;
-        })
-        //PUT
+        var recipe = recipes.find(recipe => recipe.id == recipeId);
+        recipe.title = updatedTitle;
+        recipe.ingredients = updatedIngredients;
+        recipe.instructions = updatedInstructions;
+        sendPutRecipe(recipeId, recipe);
+    }
+
+    // function which sends updated recipe
+    // rid      - id of the recipe (in recipes) to be sent
+    // recipe   - recipe data to send with PUT
+    async function sendPutRecipe(rid, recipe) {
+        //const recipe = recipes.find(r => r.id == rid); // find user
+        const recipeJSON = JSON.stringify(recipe); // make it JSON
+        console.log(recipeJSON);
+
+        try {
+            const entry = await putRecipeMutation.mutateAsync({id: rid, recipeJSON: recipeJSON})
+            console.log(entry)
+        }
+        catch (err) {
+            console.log(err)
+        }
     }
 
     function sendDeleteRecipe(id) {
@@ -117,9 +142,11 @@ const RecipeList = ({activeRecipe, setActiveRecipe}) => {
                             editRecipe={editRecipe}
                             recipe={recipes.find(r => r.id == activeRecipe)}
                             ingredientTypes={ingredientTypes}
+                            products={products}
                             newTitle={newTitle} setNewTitle={setNewTitle}
                             newIngredients={newIngredients} setNewIngredients={setNewIngredients}
-                            newInstructions={newInstructions} setNewInstructions={setNewInstructions} />
+                            newInstructions={newInstructions} setNewInstructions={setNewInstructions}
+                            moveToComment={moveToComment} />
                     </div>
                 </div>
                 </div>

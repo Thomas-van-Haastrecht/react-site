@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import React from "react";
+import '../assets/form.css'
 
 // renders edit form for the selected recipe as well as its info
 // editComment     - function to change comment (called when submitting form)
@@ -38,12 +39,17 @@ const SelectedComment = ({editComment, comment, newComment, setNewComment, newRa
         <div>
             {comment != null && // only show form if product is not null
                 <div>
+                    <h4>Info for Comment</h4>
+                    <div>
+                        Date Posted: {console.log(comment)}
+                    </div>
+
                     <form className="form-inline" onSubmit={handleSubmit}>
                         <input type="hidden" value={comment.id} id="commentId" />
 
                         {/* input for comment */}
-                        <label htmlFor="comment" className="control-label">Comment text: {comment.comment}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Text</div>
                             <input className="form-control"
                                 value={newComment}
                                 onChange={e => setNewComment(e.target.value)}
@@ -58,7 +64,7 @@ const SelectedComment = ({editComment, comment, newComment, setNewComment, newRa
                             {[1,2,3,4,5].map(i => {
                                 return (
                                     i <= comment.ratingValue ?
-                                    <i 
+                                    <i key={i} 
                                         className="bi bi-star-fill large-star"
                                         onClick={e => {
                                             e.target = e.target.parentElement.parentElement; // set target to the form
@@ -66,7 +72,7 @@ const SelectedComment = ({editComment, comment, newComment, setNewComment, newRa
                                         }
                                     }></i>
                                     :
-                                    <i 
+                                    <i key={i}
                                         className="bi bi-star large-star"
                                         onClick={e => {
                                             e.target = e.target.parentElement.parentElement; // set target to the form

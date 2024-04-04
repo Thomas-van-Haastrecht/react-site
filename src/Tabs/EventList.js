@@ -30,6 +30,22 @@ const EventList = () => {
     // states keeping track of the active event
     const [activeEvent, setActiveEvent] = useState(0)
 
+    // effect which resets input fields when activeComment changes
+    useEffect(() => {
+        if (activeEvent > 0) {
+            const event = events.find(e => e.id == activeEvent);
+            setNewTitle(event.title);
+            setNewDescription(event.description);
+            setNewPlace(event.place);
+            setNewPrice(event.price);
+            setNewDate(event.date);
+            setNewStartTime(event.startTime);
+            setNewEndTime(event.endTime);
+            setNewMaxParticipants(event.maxParticipants);
+            setNewParticipants(event.eventParticipantName);
+        }
+    }, [activeEvent]);
+
     // states to track values of input to the edit fields in selectedComment
     const [newTitle, setNewTitle] = useState("");
     const [newDescription, setNewDescription] = useState("");
@@ -67,23 +83,37 @@ const EventList = () => {
         //})
     }
 
-    function editEvent(eventId, updatedTitle, updatedDescription, updatedPlace, updatedPrice, updatedStartTime, updatedEndTime, updatedDate, updatedMaxParticipants, updatedParticipants) {
-        var changedEvents = events.map(event => {
-            if (event.id == eventId) {
-                event.title = updatedTitle;
-                event.description = updatedDescription;
-                event.place = updatedPlace;
-                event.price = updatedPrice;
-                event.startTime = updatedStartTime;
-                event.endTime = updatedEndTime;
-                event.date = updatedDate;
-                event.maxParticipants = updatedMaxParticipants;
-                event.eventParticipantName = updatedParticipants;
-            }
-            return event;
-        })
+    function editEvent(eventId, updatedTitle, updatedDescription, updatedPlace, updatedPrice, updatedDate, updatedStartTime, updatedEndTime, updatedMaxParticipants, updatedParticipants) {
+        
+        var event = events.find(e => e.id == eventId);
+
+        event.title = updatedTitle;
+        event.description = updatedDescription;
+        event.place = updatedPlace;
+        event.price = updatedPrice;
+        event.startTime = updatedStartTime;
+        event.endTime = updatedEndTime;
+        event.date = updatedDate;
+        event.maxParticipants = updatedMaxParticipants;
+        event.eventParticipantName = updatedParticipants;
         //setEvents(changedEvents);
-        //putEvent(eventId);
+        sendPutEvent(eventId, event);
+    }
+
+    // function which sends updated event
+    // eid     - id of the event (in events) to be sent
+    // event   - event data to send with PUT
+    async function sendPutEvent(eid, event) {
+        const eventJSON = JSON.stringify(event); // make it JSON
+        console.log(eventJSON);
+
+        try {
+            const entry = await putEventMutation.mutateAsync({id: eid, eventJSON: eventJSON})
+            console.log(entry)
+        }
+        catch (err) {
+            console.log(err)
+        }
     }
 
     function sendDeleteEvent(id) {
@@ -116,9 +146,10 @@ const EventList = () => {
                 <div className="row">
                 <div className="col-4">
                     <div className="list-group" id="list-tab" role="tablist">
-                        {events.map( (event, index) => {
+                        {[...events].sort((a, b) => {return new Date(b.date)-new Date(a.date)}).map( (event, index) => {
+                            const datediff = Math.round((new Date(event.date) - Date.now()) / (24*60*60*1000));
                             return (
-                                <li key={event.id} className="list-group-item p-0 d-flex justify-content-between align-items-center" onClick={() => {setActiveEvent(event.id)}}>
+                                <li key={event.id} className={"list-group-item p-0 d-flex justify-content-between align-items-center" + (datediff < 0 ? " bg-secondary text-white" : "")} onClick={() => {setActiveEvent(event.id)}}>
                                     <div className="align-items-center">
                                         <div className="ms-3">
                                             <span className="">{event.title}</span>

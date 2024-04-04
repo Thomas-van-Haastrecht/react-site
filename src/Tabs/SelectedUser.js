@@ -14,6 +14,7 @@
 import { getCommentsByUser } from "../api/comments";
 import { getUser } from "../api/users";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import '../assets/form.css'
 
 
 // moveToRecipe   - function which sets active recipe and active tab in order to switch to the view of specified recipe
@@ -58,13 +59,13 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
         <div>
             {(isLoading ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
                 <div>
-                    <h4>User Info</h4>
+                    <h4>Info for "{userInfo.userFirstName}"</h4>
                     <form className="form-inline" onSubmit={handleSubmit}>
                         <input type="hidden" value={activeUser} id="uid" />
 
                         {/* input for name */}
-                        <label htmlFor="name" className="control-label">Name: {userInfo.userFirstName}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Name</div>
                             <input className="form-control"
                                 value={newName}
                                 onChange={e => setNewName(e.target.value)}
@@ -76,8 +77,8 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
                         </div>
 
                         {/* input for email */}
-                        <label htmlFor="email" className="control-label">Email: {userInfo.userEmail}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">Email</div>
                             <input className="form-control"
                                 value={newEmail}
                                 onChange={e => setNewEmail(e.target.value)}
@@ -89,8 +90,8 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
                         </div>
 
                         {/* input for city */}
-                        <label htmlFor="city" className="control-label">City: {userInfo.userCityOfResidence}</label>
                         <div className="input-group mx-sm-3 mb-2">
+                            <div className="input-group-prepend input-group-text form-begin-tag">City</div>
                             <input className="form-control"
                                 value={newCity}
                                 onChange={e => setNewCity(e.target.value)}
