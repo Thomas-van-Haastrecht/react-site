@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getIngredientTypes, getProducts } from "../api/products";
 import { getRecipes, putRecipe } from "../api/recipes";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
+import ItemList from "../Components/ItemList";
 
 // renders the list of recipes and the active recipe if one is selected (activeRecipe state lifted to parent so it can be used by other tabs)
 // activeRecipe      - state tracking which user is active
@@ -111,44 +112,26 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
             
             <div className="container-fluid mt-5">
                 <div className="row">
-                <div className="col-4">
-                    <div className="list-group" id="list-tab" role="tablist">
-                        {recipes.map( (recipe, index) => {
-                            return (
-                                <li key={recipe.id} className="list-group-item p-0 d-flex justify-content-between align-items-center" onClick={() => {setActiveRecipe(recipe.id)}}>
-                                    <div className="align-items-center">
-                                        <div className="ms-3">
-                                            <span className="">{recipe.title}</span>
-                                        </div>
-                                    </div>
-                                    <button
-                                        className={"btn btn-danger bi bi-trash product-trash rounded-start-0" + (index > 0 ? " rounded-top-0" : "") + (index < recipes.length-1 ? " rounded-bottom-0" : " rounded-bottom-left-0")}
-                                        onClick={() => {
-                                            setActiveRecipe(recipe.id);
-                                            document.getElementById("toDeleteRecipeInfo").textContent = recipe.title;
-                                        }}
-                                        data-toggle="modal"
-                                        data-target="#deleteRecipeModal"
-                                    ></button>
-                                </li>
-                                );
-                            })
-                        }
+                    <div className="col-4">
+                        <ItemList
+                            items={recipes}
+                            displayParam={'title'}
+                            setActive={setActiveRecipe}
+                            modalId={'deleteRecipeModal'} />
                     </div>
-                </div>
-                <div className="col-6">
-                    <div>
-                        <SelectedRecipe 
-                            editRecipe={editRecipe}
-                            recipe={recipes.find(r => r.id == activeRecipe)}
-                            ingredientTypes={ingredientTypes}
-                            products={products}
-                            newTitle={newTitle} setNewTitle={setNewTitle}
-                            newIngredients={newIngredients} setNewIngredients={setNewIngredients}
-                            newInstructions={newInstructions} setNewInstructions={setNewInstructions}
-                            moveToComment={moveToComment} />
+                    <div className="col-6">
+                        <div>
+                            <SelectedRecipe 
+                                editRecipe={editRecipe}
+                                recipe={recipes.find(r => r.id == activeRecipe)}
+                                ingredientTypes={ingredientTypes}
+                                products={products}
+                                newTitle={newTitle} setNewTitle={setNewTitle}
+                                newIngredients={newIngredients} setNewIngredients={setNewIngredients}
+                                newInstructions={newInstructions} setNewInstructions={setNewInstructions}
+                                moveToComment={moveToComment} />
+                        </div>
                     </div>
-                </div>
                 </div>
             </div>
         </>

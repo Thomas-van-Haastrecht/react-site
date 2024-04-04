@@ -3,6 +3,7 @@ import SelectedEvent from "./SelectedEvent";
 import { getEvents, postEvent, putEvent } from "../api/events";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
+import ItemList from "../Components/ItemList";
 
 const EventList = () => {
     const queryClient = useQueryClient();
@@ -144,51 +145,35 @@ const EventList = () => {
 
             <div className="container-fluid mt-5">
                 <div className="row">
-                <div className="col-4">
-                    <div className="list-group" id="list-tab" role="tablist">
-                        {[...events].sort((a, b) => {return new Date(b.date)-new Date(a.date)}).map( (event, index) => {
-                            const datediff = Math.round((new Date(event.date) - Date.now()) / (24*60*60*1000));
-                            return (
-                                <li key={event.id} className={"list-group-item p-0 d-flex justify-content-between align-items-center" + (datediff < 0 ? " bg-secondary text-white" : "")} onClick={() => {setActiveEvent(event.id)}}>
-                                    <div className="align-items-center">
-                                        <div className="ms-3">
-                                            <span className="">{event.title}</span>
-                                        </div>
-                                    </div>
-                                    <button
-                                        className={"btn btn-danger bi bi-trash product-trash rounded-start-0" + (index > 0 ? " rounded-top-0" : "") + (index < events.length-1 ? " rounded-bottom-0" : " rounded-bottom-left-0")}
-                                        onClick={() => {
-                                            setActiveEvent(event.id);
-                                            document.getElementById("toDeleteEventInfo").textContent = event.title;
-                                        }}
-                                        data-toggle="modal"
-                                        data-target="#deleteEventModal"
-                                    ></button>
-                                </li>
-                                );
-                            })
-                        }
+                    <div className="col-4">
+                        <ItemList 
+                            items={[...events].sort((a, b) => {return new Date(b.date)-new Date(a.date)})}
+                            displayParam={'title'}
+                            setActive={setActiveEvent}
+                            modalId={'deleteEventModal'}
+                            styling={true}
+                            subject={(event) => {return Math.round((new Date(event.date) - Date.now()) / (24*60*60*1000))}}
+                            condition={(datediff) => {return (datediff < 0 ? "bg-secondary text-white" : "")}} />
                     </div>
-                </div>
-                <div className="col-6">
-                    <div>
-                        {activeEvent == 0 ? 
-                            <></> :
-                            <SelectedEvent
-                                editEvent={editEvent}
-                                event={events.find(e => e.id == activeEvent)}
-                                newTitle={newTitle} setNewTitle={setNewTitle}
-                                newDescription={newDescription} setNewDescription={setNewDescription}
-                                newPlace={newPlace} setNewPlace={setNewPlace}
-                                newPrice={newPrice} setNewPrice={setNewPrice}
-                                newStartTime={newStartTime} setNewStartTime={setNewStartTime}
-                                newEndTime={newEndTime} setNewEndTime={setNewEndTime}
-                                newDate={newDate} setNewDate={setNewDate}
-                                newMaxParticipants={newMaxParticipants} setNewMaxParticipants={setNewMaxParticipants}
-                                newParticipants={newParticipants} setNewParticipants={setNewParticipants} />
-                        }
+                    <div className="col-6">
+                        <div>
+                            {activeEvent == 0 ? 
+                                <></> :
+                                <SelectedEvent
+                                    editEvent={editEvent}
+                                    event={events.find(e => e.id == activeEvent)}
+                                    newTitle={newTitle} setNewTitle={setNewTitle}
+                                    newDescription={newDescription} setNewDescription={setNewDescription}
+                                    newPlace={newPlace} setNewPlace={setNewPlace}
+                                    newPrice={newPrice} setNewPrice={setNewPrice}
+                                    newStartTime={newStartTime} setNewStartTime={setNewStartTime}
+                                    newEndTime={newEndTime} setNewEndTime={setNewEndTime}
+                                    newDate={newDate} setNewDate={setNewDate}
+                                    newMaxParticipants={newMaxParticipants} setNewMaxParticipants={setNewMaxParticipants}
+                                    newParticipants={newParticipants} setNewParticipants={setNewParticipants} />
+                            }
+                        </div>
                     </div>
-                </div>
                 </div>
             </div>
         </>

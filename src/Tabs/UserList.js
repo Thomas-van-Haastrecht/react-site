@@ -3,8 +3,7 @@ import SelectedUser from "./SelectedUser";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteUser, getUsers, putUser } from "../api/users";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
-
-
+import ItemList from "../Components/ItemList";
 
 // renders the list of users and the active user if one is selected
 // handleTabChange   - function to switch to a different tab (used when clicking on a recipe made by a user)
@@ -152,44 +151,26 @@ const UserList = ({moveToComment, moveToRecipe}) => {
             {/* actual code, list of items and selected item */}
             <div className="container-fluid mt-5">
                 <div className="row">
-                <div className="col-4">
-                    <div className="list-group" id="list-tab" role="tablist">
-                        {users.map( (user, index) => {
-                            return (
-                                <li key={user.id} className="list-group-item p-0 d-flex justify-content-between align-items-center" onClick={() => {setActiveUser(user.id)}}>
-                                    <div className="align-items-center">
-                                        <div className="ms-3">
-                                            <span className="">{user.firstName}</span>
-                                        </div>
-                                    </div>
-                                    <button
-                                        className={"btn btn-danger bi bi-trash product-trash rounded-start-0" + (index > 0 ? " rounded-top-0" : "") + (index < users.length-1 ? " rounded-bottom-0" : " rounded-bottom-left-0")}
-                                        onClick={() => {
-                                            setActiveUser(user.id);
-                                            document.getElementById("toDeleteUserInfo").textContent = user.firstName;
-                                        }}
-                                        data-toggle="modal"
-                                        data-target="#deleteUserModal"
-                                    ></button>
-                                </li>
-                                );
-                            })
-                        }
+                    <div className="col-4">
+                        <ItemList
+                            items={users}
+                            displayParam={'firstName'}
+                            setActive={setActiveUser}
+                            modalId={'deleteUserModal'} />
                     </div>
-                </div>
-                <div className="col-6">
-                    <div>
-                        {activeUser > 0 &&
-                            <SelectedUser 
-                                editUser={editUser}
-                                activeUser={activeUser}
-                                newName={newName} setNewName={setNewName}
-                                newEmail={newEmail} setNewEmail={setNewEmail}
-                                newCity={newCity} setNewCity={setNewCity}
-                                moveToRecipe={moveToRecipe} moveToComment={moveToComment} />
-                        }
+                    <div className="col-6">
+                        <div>
+                            {activeUser > 0 &&
+                                <SelectedUser 
+                                    editUser={editUser}
+                                    activeUser={activeUser}
+                                    newName={newName} setNewName={setNewName}
+                                    newEmail={newEmail} setNewEmail={setNewEmail}
+                                    newCity={newCity} setNewCity={setNewCity}
+                                    moveToRecipe={moveToRecipe} moveToComment={moveToComment} />
+                            }
+                        </div>
                     </div>
-                </div>
                 </div>
             </div>
         </>

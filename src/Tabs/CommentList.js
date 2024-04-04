@@ -3,6 +3,7 @@ import SelectedComment from "./SelectedComment";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getComments, postComment, putComment } from "../api/comments";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
+import ItemList from "../Components/ItemList";
 
 const CommentList = ({activeComment, setActiveComment}) => {
     const queryClient = useQueryClient();
@@ -33,8 +34,11 @@ const CommentList = ({activeComment, setActiveComment}) => {
 
     // effect which resets input fields when activeComment changes
     useEffect(() => {
-        setNewComment("");
-        setNewRating("");
+        if (activeComment > 0) {
+            const comment = comments.find(c => c.id == activeComment);
+            setNewComment(comment ? comment.comment : "");
+            setNewRating(comment ? comment.ratingValue : "");
+        }
     }, [activeComment]);
 
     // function which updates comments state (called when info is changed in SelectedComment)
@@ -122,43 +126,25 @@ const CommentList = ({activeComment, setActiveComment}) => {
 
             <div className="container-fluid mt-5">
                 <div className="row">
-                <div className="col-4">
-                    <div className="list-group" id="list-tab" role="tablist">
-                        {comments.map( (comment, index) => {
-                            return (
-                                <li key={comment.id} className="list-group-item p-0 d-flex justify-content-between align-items-center" onClick={() => {setActiveComment(comment.id)}}>
-                                    <div className="align-items-center">
-                                        <div className="ms-3">
-                                            <span className="">{comment.comment}</span>
-                                        </div>
-                                    </div>
-                                    <button
-                                        className={"btn btn-danger bi bi-trash product-trash rounded-start-0" + (index > 0 ? " rounded-top-0" : "") + (index < comments.length-1 ? " rounded-bottom-0" : " rounded-bottom-left-0")}
-                                        onClick={() => {
-                                            setActiveComment(comment.id);
-                                            document.getElementById("toDeleteCommentInfo").textContent = comment.comment;
-                                        }}
-                                        data-toggle="modal"
-                                        data-target="#deleteCommentModal"
-                                    ></button>
-                                </li>
-                                );
-                            })
-                        }
+                    <div className="col-4">
+                        <ItemList
+                            items={comments}
+                            displayParam={'comment'}
+                            setActive={setActiveComment}
+                            modalId={'deleteCommentModal'} />
                     </div>
-                </div>
-                <div className="col-6">
-                    <div>
-                        {activeComment == 0 ? 
-                            <></> :
-                            <SelectedComment
-                                editComment={editComment}
-                                comment={comments.find(c => c.id == activeComment)}
-                                newComment={newComment} setNewComment={setNewComment}
-                                newRating={newRating} setNewRating={setNewRating} />
-                        }
+                    <div className="col-6">
+                        <div>
+                            {activeComment == 0 ? 
+                                <></> :
+                                <SelectedComment
+                                    editComment={editComment}
+                                    comment={comments.find(c => c.id == activeComment)}
+                                    newComment={newComment} setNewComment={setNewComment}
+                                    newRating={newRating} setNewRating={setNewRating} />
+                            }
+                        </div>
                     </div>
-                </div>
                 </div>
             </div>
         </>

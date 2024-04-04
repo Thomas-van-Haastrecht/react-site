@@ -7,6 +7,8 @@ import {getPackagingTypes} from '../api/packagingtypes'
 import { getAllergies } from "../api/allergies";
 import { postImage } from "../api/imageobjs";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
+import ItemList from "../Components/ItemList";
+
 
 // renders the list of products and the active user if one is selected
 const ProductList = () => {
@@ -380,29 +382,11 @@ const ProductList = () => {
             <div className="container-fluid mb-5">
                 <div className="row">
                     <div className="col-4">
-                        <ul className="list-group" id="list-tab" role="tablist">
-                            {products.map( (product, index) => {
-                                return (
-                                    <li key={product.id} className="list-group-item p-0 d-flex justify-content-between align-items-center" onClick={() => {setActiveProduct(product.id)}}>
-                                        <div className="align-items-center">
-                                            <div className="ms-3">
-                                                <span className="">{product.name}</span>
-                                            </div>
-                                        </div>
-                                        <button
-                                            className={"btn btn-danger bi bi-trash product-trash rounded-start-0" + (index > 0 ? " rounded-top-0" : "") + (index < products.length-1 ? " rounded-bottom-0" : " rounded-bottom-left-0")}
-                                            onClick={() => {
-                                                setActiveProduct(product.id);
-                                                document.getElementById("toDeleteProductInfo").textContent = product.name;
-                                            }}
-                                            data-toggle="modal"
-                                            data-target="#deleteProductModal"
-                                        ></button>
-                                    </li>
-                                    );
-                                })
-                            }
-                        </ul>
+                        <ItemList
+                            items={products}
+                            displayParam={'name'}
+                            setActive={setActiveProduct}
+                            modalId={'deleteProductModal'} />
                     </div>
                     <div className="col-6">
                         <div>
