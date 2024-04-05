@@ -14,7 +14,6 @@ import '../assets/form.css'
 const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,  setNewDescription,
     newPlace, setNewPlace, newPrice, setNewPrice, newStartTime, setNewStartTime, newEndTime, setNewEndTime,
     newDate, setNewDate, newMaxParticipants, setNewMaxParticipants, newParticipants, setNewParticipants}) => {
-    console.log(event)
     // function to handle submitting the form
     // e   - Event which was triggered (used to get html element and its contents, and to prevent a page reload)
     function handleSubmit(e) {
@@ -31,10 +30,12 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
         const updatedEndTime = e.target.endTime.value ? e.target.endTime.value : e.target.endTime.placeholder;
         const updatedMaxParticipants = e.target.maxParticipants.value ? e.target.maxParticipants.value : e.target.maxParticipants.placeholder;
 
-        editEvent(eventId, updatedTitle, updatedDescription, updatedPlace, updatedPrice, updatedDate, updatedStartTime, updatedEndTime, updatedMaxParticipants)
+        if (new RegExp('^\d*(,\d\d?)?$').test(updatedPrice)) {
+            editEvent(eventId, updatedTitle, updatedDescription, updatedPlace, updatedPrice, updatedDate, updatedStartTime, updatedEndTime, updatedMaxParticipants)
+        }
         // call edit function so user gets new information
         //editComment(recipeId, updatedName, newIngredients, newInstructions);
-        
+
         // reset form fields
         // setNewName("");
     }
@@ -65,6 +66,7 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                             <div className="input-group-prepend input-group-text form-begin-tag">Description</div>
                             <textarea className="form-control"
                                 value={newDescription}
+                                rows='3'
                                 onChange={e => setNewDescription(e.target.value)}
                                 type="text"
                                 id="description"
@@ -92,13 +94,21 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                             <div className="input-group-prepend input-group-text bg-white">€</div>
                             <input className="form-control border-left-0"
                                 value={newPrice}
-                                onChange={e => setNewPrice(e.target.value)}
+                                pattern="^\d*(,\d\d?)?$"
+                                onChange={e => {
+                                    const value = e.target.value;
+                                    const check = new RegExp('^\d*,?\d*$').test(value)
+                                    console.log(value, check)
+                                    if (check) {
+                                        setNewPrice(value)}
+                                    }
+                                }
                                 onBlur={e => {
                                     e.target = e.target.parentElement.parentElement; // set target to the form
                                     handleSubmit(e);
                                     }
                                 }
-                                type="number"
+                                type="text"
                                 step="any"
                                 id="price"
                                 placeholder={event.price}
@@ -168,7 +178,7 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                     {/* comments, not fully implemented */}
                     <p>Participant List:</p>
                     <ul className="list-group">
-                        {event.eventParticipantName.map((participant, index) => {
+                        {event.eventParticipantName?.map((participant, index) => {
                             return (
                                 <a key={'paricipant_'+index} className="list-group-item link-primary">{participant}</a>
                             )

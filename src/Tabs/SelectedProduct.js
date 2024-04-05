@@ -55,7 +55,9 @@ const SelectedProduct = ({
         const updatedDescription = e.target.description.value ? e.target.description.value : e.target.description.placeholder;
         const updatedSmallestAmount = e.target.smallestAmount.value ? e.target.smallestAmount.value : e.target.smallestAmount.placeholder;
 
-        editProduct(pid, updatedName, updatedPrice, updatedAmount, updatedType, updatedPackagingId, selectedAllergens, updatedCalories, updatedDescription, updatedSmallestAmount);
+        if (new RegExp('^\d*(,\d\d?)?$').test(updatedPrice)) {
+            editProduct(pid, updatedName, updatedPrice, updatedAmount, updatedType, updatedPackagingId, selectedAllergens, updatedCalories, updatedDescription, updatedSmallestAmount);
+        }
     }
 
     function handleAllergyChange(id) {
@@ -102,13 +104,20 @@ const SelectedProduct = ({
                             <div className="input-group-prepend input-group-text bg-white">€</div>
                             <input className="form-control"
                                 value={newPrice}
-                                onChange={e => setNewPrice(e.target.value)}
+                                pattern="^\d*(,\d\d?)?$"
+                                onChange={e => {
+                                    const value = e.target.value;
+                                    const check = new RegExp('^\d*,?\d*$').test(value)
+                                    console.log(value, check)
+                                    if (check) {
+                                        setNewPrice(value)
+                                    }
+                                }}
                                 onBlur={e => {
                                     e.target = e.target.parentElement.parentElement; // set target to the form
                                     handleSubmit(e);
-                                    }
-                                }
-                                type="number"
+                                }}
+                                type="text"
                                 step="any"
                                 id="price"
                                 placeholder={product.price}
@@ -175,6 +184,7 @@ const SelectedProduct = ({
                             <div className="input-group-prepend input-group-text form-begin-tag">Description</div>
                             <textarea className="form-control"
                                 value={newDescription}
+                                rows='3'
                                 onChange={e => setNewDescription(e.target.value)}
                                 onBlur={e => {
                                     e.target = e.target.parentElement.parentElement; // set target to the form
