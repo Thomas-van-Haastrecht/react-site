@@ -21,10 +21,7 @@ const SelectedComment = ({editComment, comment, newComment, setNewComment, newRa
         
         // call edit function so user gets new information
         editComment(commentId, updatedComment, rating);
-        
-        // reset form fields
-        setNewComment("");
-        setNewRating("");
+        setNewComment(updatedComment);
     }
 
     // function which handles when existing rating is updated
@@ -41,7 +38,7 @@ const SelectedComment = ({editComment, comment, newComment, setNewComment, newRa
                 <div>
                     <h4>Info for Comment</h4>
                     <div>
-                        Date Posted: {console.log(comment)}
+                        Date Posted: {/* not implemented */}
                     </div>
 
                     <form className="form-inline" onSubmit={handleSubmit}>
@@ -50,8 +47,9 @@ const SelectedComment = ({editComment, comment, newComment, setNewComment, newRa
                         {/* input for comment */}
                         <div className="input-group mx-sm-3 mb-2">
                             <div className="input-group-prepend input-group-text form-begin-tag">Text</div>
-                            <input className="form-control"
+                            <textarea className="form-control"
                                 value={newComment}
+                                rows='3'
                                 onChange={e => setNewComment(e.target.value)}
                                 type="text"
                                 id="comment"

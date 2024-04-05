@@ -38,7 +38,7 @@ const EventList = () => {
             setNewTitle(event.title);
             setNewDescription(event.description);
             setNewPlace(event.place);
-            setNewPrice(event.price);
+            setNewPrice(String(event.price).replace('.',','));
             setNewDate(event.date);
             setNewStartTime(event.startTime);
             setNewEndTime(event.endTime);
@@ -91,7 +91,7 @@ const EventList = () => {
         event.title = updatedTitle;
         event.description = updatedDescription;
         event.place = updatedPlace;
-        event.price = updatedPrice;
+        event.price = +updatedPrice.replace(',','.');
         event.startTime = updatedStartTime;
         event.endTime = updatedEndTime;
         event.date = updatedDate;

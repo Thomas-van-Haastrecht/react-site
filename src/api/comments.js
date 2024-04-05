@@ -21,7 +21,7 @@ export function postComment (commentJSON) {
 
 // function to update (PUT) an existing comment
 export function putComment ({id, commentJSON}) { // destructoring necessary as react-query mutate functions only take one input
-    return fetch('https://localhost:7027/api/comments/'+id, {
+    return fetch('https://localhost:7027/api/comments/users/'+id, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: commentJSON,

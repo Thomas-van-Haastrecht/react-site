@@ -46,34 +46,25 @@ const CommentList = ({activeComment, setActiveComment}) => {
     // updatedComment   - new comment text (if changed, otherwise previous value)
     // updatedRating    - new rating (if changed, otherwise previous value)
     function editComment(commentId, updatedComment, updatedRating) {
-        var changedComments = comments.map(comment => {
-            if (comment.id == commentId) {
-                comment.comment = updatedComment;
-                comment.ratingValue = +updatedRating;
-            }
-            return comment;
-        })
-        sendPutComment(commentId);
+        const comment = comments.find(c => c.id == commentId); // find comment
+        comment.comment = updatedComment;
+        comment.ratingValue = +updatedRating;
+        sendPutComment(comment);
     }
 
     // function which sends PUT request to update comment
     // cid   - id of the comment (in comments) to be sent
-    function sendPutComment(cid) {
-        const comment = comments.find(c => c.id == cid); // find comment
+    async function sendPutComment(comment) {
         const commentJSON = JSON.stringify(comment); // make it JSON
         console.log(commentJSON);
 
-        fetch('https://localhost:7027/api/comments/users/'+comment.userId, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: commentJSON,
-        })
-        .then(entry => {
+        try {
+            const entry = await putCommentMutation.mutateAsync({id: comment.userId, commentJSON: commentJSON})
             console.log(entry)
-        })
-        .catch( err => {
+        }
+        catch (err) {
             console.log(err)
-        })
+        }
     }
 
     // function which sends a DELETE request to the server

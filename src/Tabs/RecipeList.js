@@ -46,9 +46,9 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
 
     // effect which resets input fields when activeRecipe changes
     useEffect(() => {
-        setNewTitle("");
         var recipe = recipes?.find(r => r.id == activeRecipe);
         if (recipe != undefined) {
+            setNewTitle(recipe.title);
             setNewIngredients(recipe.ingredients);
             setNewInstructions(recipe.instructions);
         }
@@ -114,7 +114,7 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
                 <div className="row">
                     <div className="col-4">
                         <ItemList
-                            items={recipes}
+                            items={[...recipes].sort((a, b) => {return a.id - b.id})}
                             displayParam={'title'}
                             setActive={setActiveRecipe}
                             modalId={'deleteRecipeModal'} />

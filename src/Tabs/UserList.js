@@ -55,9 +55,12 @@ const UserList = ({moveToComment, moveToRecipe}) => {
 
     // effect which resets input fields when activeUser changes
     useEffect(() => {
-        setNewName("");
-        setNewEmail("");
-        setNewCity("");
+        if (activeUser > 0) {
+            const user = users.find(u => u.id == activeUser);
+            setNewName(user.firstName);
+            setNewEmail(user.email);
+            setNewCity(user.cityOfResidence);
+        }
     }, [activeUser]);
 
     // function which updates users state (called when info is changed in SelectedUser)

@@ -106,19 +106,21 @@ const ProductList = () => {
 
     // effect to reset all form fields when active product changes
     useEffect(() => {
-        setNewName("");
-        setNewPrice("");
-        setNewAmount("");
-        setNewCalories("");
-        setNewSmallestAmount("");
-        setNewDescription("");
-        var p = products?.find(p => p.id == activeProduct)
-        var type = p ? p.ingredientType : 'milliliter'; // sets SelectedType to the product's current value
-        setSelectedType(type);
-        var packaging = p? p.packagingId : 1; // sets SelectedPackaging to the product's current value
-        setSelectedPackaging(packaging);
-        var allergens = p?.allergies // sets SelectedAllergens to the ids of the product's allergies
-        setSelectedAllergens(allergens ? allergens.map(a => a.id) : []);
+        if(activeProduct > 0) {
+            var p = products?.find(p => p.id == activeProduct)
+            setNewName(p.name);
+            setNewPrice(String(p.price).replace('.',','));
+            setNewAmount(p.amount);
+            setNewCalories(p.calories);
+            setNewSmallestAmount(p.smallestAmount);
+            setNewDescription(p.description);
+            var type = p ? p.ingredientType : 'milliliter'; // sets SelectedType to the product's current value
+            setSelectedType(type);
+            var packaging = p? p.packagingId : 1; // sets SelectedPackaging to the product's current value
+            setSelectedPackaging(packaging);
+            var allergens = p?.allergies // sets SelectedAllergens to the ids of the product's allergies
+            setSelectedAllergens(allergens ? allergens.map(a => a.id) : []);
+        }
     }, [activeProduct]);
 
     // function which updates products state (called when info is changed in SelectedProduct)
@@ -157,7 +159,7 @@ const ProductList = () => {
     function updateProductValues(product, pid, pname, price, amount, type, packagingId, allergens, calories, description, smallestAmount) {
         if (product.id == pid) { // only edit the correct product
             product.name = pname;
-            product.price = +price;  // + converts to number
+            product.price = +price.replace(',','.');  // + converts to number
             product.amount = +amount;
             product.ingredientType = type;
             product.packagingid = packagingId;
