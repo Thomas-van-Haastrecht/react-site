@@ -388,6 +388,7 @@ const ProductList = () => {
                             items={products}
                             displayParam={'name'}
                             setActive={setActiveProduct}
+                            divInfoId={'toDeleteProductInfo'}
                             modalId={'deleteProductModal'} />
                     </div>
                     <div className="col-6">

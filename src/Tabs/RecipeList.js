@@ -117,6 +117,7 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
                             items={[...recipes].sort((a, b) => {return a.id - b.id})}
                             displayParam={'title'}
                             setActive={setActiveRecipe}
+                            divInfoId={'toDeleteRecipeInfo'}
                             modalId={'deleteRecipeModal'} />
                     </div>
                     <div className="col-6">

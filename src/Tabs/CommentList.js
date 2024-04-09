@@ -122,6 +122,7 @@ const CommentList = ({activeComment, setActiveComment}) => {
                             items={comments}
                             displayParam={'comment'}
                             setActive={setActiveComment}
+                            divInfoId={'toDeleteCommentInfo'}
                             modalId={'deleteCommentModal'} />
                     </div>
                     <div className="col-6">

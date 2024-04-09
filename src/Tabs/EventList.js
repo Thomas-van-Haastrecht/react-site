@@ -150,6 +150,7 @@ const EventList = () => {
                             items={[...events].sort((a, b) => {return new Date(b.date)-new Date(a.date)})}
                             displayParam={'title'}
                             setActive={setActiveEvent}
+                            divInfoId={'toDeleteEventInfo'}
                             modalId={'deleteEventModal'}
                             styling={true}
                             subject={(event) => {return Math.round((new Date(event.date) - Date.now()) / (24*60*60*1000))}}
