@@ -44,11 +44,6 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
 
         // call edit function so user gets new information
         editUser(uid, updatedName, updatedEmail, updatedCity);
-        
-        // reset form fields
-        setNewName("");
-        setNewEmail("");
-        setNewCity("");
     }
 
     // return value (top line provides alternate divs in case loading is not done yet)
@@ -61,6 +56,7 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
                 <div>
                     <h4>Info for "{userInfo.userFirstName}"</h4>
                     <form className="form-inline" onSubmit={handleSubmit}>
+                        <input className="d-none" type="submit" value="submit" />
                         <input type="hidden" value={activeUser} id="uid" />
 
                         {/* input for name */}
@@ -101,8 +97,8 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
                     </form>
                     
                     {/* recipes, not fully implemented */}
-                    <p>Recipes:</p>
-                    <ul className="list-group">
+                    <p className="mx-sm-3 mb-0">Recipes:</p>
+                    <ul className="list-group mx-sm-3 mb-2">
                         {userInfo.recipes.map(recipe => {
                             return (
                                 <a key={recipe.id} className="list-group-item link-primary" onClick={() => {moveToRecipe(recipe.id)}}>{recipe.title}</a>
@@ -111,8 +107,8 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
                     </ul>
 
                     {/* comments, not fully implemented */}
-                    <p>Comments:</p>
-                    <ul className="list-group">
+                    <p className="mx-sm-3 mb-0">Comments:</p>
+                    <ul className="list-group mx-sm-3 mb-2">
                         {comments.map(comment => {
                             return (
                                 <a key={comment.id} className="list-group-item link-primary" onClick={() => {moveToComment(comment.id)}}>{comment.comment}</a>

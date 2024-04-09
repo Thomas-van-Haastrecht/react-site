@@ -241,7 +241,7 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for allergens */}
-                        <label htmlFor="" className="control-label">Allergens:</label>
+                        <label htmlFor="" className="control-label mx-sm-3">Allergens:</label>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className='row'>
                                 {allergyInfo.map(a => {
@@ -281,6 +281,7 @@ const SelectedProduct = ({
                                     required
                                     onChange={handleImage}/>
                             </div>
+                            <img className={newImage ? 'img-fluid rounded w-50 border mx-sm-3 mb-2' : 'd-none'} alt="preview image" src={newImage ? URL.createObjectURL(newImage) : ''}/>
                         </>
                         }
                         <input ref={submitButton} className="d-none" type="submit" value="Submit" />

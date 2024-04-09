@@ -125,7 +125,7 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
                         </div>
 
                         {/* input for ingredients */}
-                        <label htmlFor="ingredients" className="control-label">Ingredients:</label>
+                        <label htmlFor="ingredients" className="control-label mx-sm-3">Ingredients:</label>
                         {newIngredients.map(ingredient => {
                         return(
                                 <React.Fragment key={ingredient.id}>
@@ -186,7 +186,7 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
                         </div> */}
 
                         {/* input for instructions */}
-                        <label htmlFor="instructions" className="control-label">Instructions:</label>
+                        <label htmlFor="instructions" className="control-label mx-sm-3">Instructions:</label>
                         {newInstructions.map((instruction, index) => {
                         return(
                                 <React.Fragment key={index}>
@@ -215,8 +215,8 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
                             />
                         </div>
                     </form>
-                    <p>Comments:</p>
-                    <ul className="list-group">
+                    <p className="mx-sm-3">Comments:</p>
+                    <ul className="list-group mx-sm-3">
                         {recipe.comments.map(comment => {
                             return (
                                 <a key={comment.id} className="list-group-item link-primary" onClick={() => {moveToComment(comment.id)}}>{comment.comment}</a>
