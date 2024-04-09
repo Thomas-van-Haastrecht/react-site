@@ -159,6 +159,7 @@ const UserList = ({moveToComment, moveToRecipe}) => {
                             items={users}
                             displayParam={'firstName'}
                             setActive={setActiveUser}
+                            divInfoId={'toDeleteUserInfo'}
                             modalId={'deleteUserModal'} />
                     </div>
                     <div className="col-6">
