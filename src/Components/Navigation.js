@@ -5,10 +5,13 @@ import RecipeList from '../Tabs/RecipeList';
 import ProductList from '../Tabs/ProductList';
 import CommentList from '../Tabs/CommentList';
 import EventList from '../Tabs/EventList';
+import KitchenTypes from "../Tabs/KitchenTypes";
+import PackagingTypes from "../Tabs/PackagingTypes";
+import IngredientTypes from "../Tabs/IngredientTypes";
 
 // renders navigation list and the selected tab
 const Navigation = () => {
-    const tabs = ['Users', 'Recipes', 'Products', 'Comments', 'Events']
+    const tabs = ['Users', 'Recipes', 'Products', 'Comments', 'Events', 'Kitchen Types', 'Packaging Types', 'Ingredient Types']
     const [activeTab, setActiveTab] = useState(0);
 
     // state for the active component (used in their respective tabs)
@@ -47,7 +50,10 @@ const Navigation = () => {
                     'Recipes': <RecipeList activeRecipe={activeRecipe} setActiveRecipe={setActiveRecipe} moveToComment={moveToComment} />,
                     'Products': <ProductList />,
                     'Comments': <CommentList activeComment={activeComment} setActiveComment={setActiveComment} />,
-                    'Events': <EventList />
+                    'Events': <EventList />,
+                    'Kitchen Types': <KitchenTypes />,
+                    'Packaging Types': <PackagingTypes />,
+                    'Ingredient Types': <IngredientTypes />
                 }[tabs[activeTab]]
             }
         </>
