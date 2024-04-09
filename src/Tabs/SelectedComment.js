@@ -55,7 +55,6 @@ const SelectedComment = ({editComment, comment, newComment, setNewComment, newRa
                                 id="comment"
                                 placeholder={comment.comment}
                             />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
 
                         <div id="rating-stars">

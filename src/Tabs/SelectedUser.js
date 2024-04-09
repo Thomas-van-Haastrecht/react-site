@@ -73,7 +73,6 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
                                 id="name"
                                 placeholder={userInfo.userFirstName}
                             />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
 
                         {/* input for email */}
@@ -86,7 +85,6 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
                                 id="email"
                                 placeholder={userInfo.userEmail}
                             />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
 
                         {/* input for city */}
@@ -99,7 +97,6 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
                                 id="city"
                                 placeholder={userInfo.userCityOfResidence}
                             />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
                     </form>
                     

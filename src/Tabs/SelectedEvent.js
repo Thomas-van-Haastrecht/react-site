@@ -58,7 +58,6 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                                 id="title"
                                 placeholder={event.title}
                             />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
 
                         {/* input for description */}
@@ -72,7 +71,6 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                                 id="description"
                                 placeholder={event.description}
                             />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
 
                         {/* input for place */}
@@ -85,7 +83,6 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                                 id="place"
                                 placeholder={event.place}
                             />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
 
                         {/* input for price */}
@@ -125,7 +122,6 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                                 id="date"
                                 placeholder={event.date}
                             />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
                         
                         {/* input for start time */}
@@ -139,7 +135,6 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                                 id="startTime"
                                 placeholder={event.startTime}
                             />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
 
                         {/* input for end time */}
@@ -153,7 +148,6 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                                 id="endTime"
                                 placeholder={event.endTime}
                             />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
 
                         {/* input for max participants */}

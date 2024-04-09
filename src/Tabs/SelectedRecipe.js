@@ -122,7 +122,6 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
                                 id="title"
                                 placeholder={recipe.title}
                             />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
 
                         {/* input for ingredients */}
@@ -200,7 +199,6 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
                                             type="text"
                                             id={index}
                                         />
-                                        <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                                         <button className="btn btn-danger bi bi-trash product-trash" onClick={() => removeInstruction(index)}></button>
                                     </div>
                                 </React.Fragment>
@@ -215,7 +213,6 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
                                 type="text"
                                 id={newInstructions.length}
                             />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
                         </div>
                     </form>
                     <p>Comments:</p>
