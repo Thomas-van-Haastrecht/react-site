@@ -49,12 +49,12 @@ const CommentList = ({activeComment, setActiveComment}) => {
         const comment = comments.find(c => c.id == commentId); // find comment
         comment.comment = updatedComment;
         comment.ratingValue = +updatedRating;
-        sendPutComment(comment);
+        updateComment(comment);
     }
 
     // function which sends PUT request to update comment
     // cid   - id of the comment (in comments) to be sent
-    async function sendPutComment(comment) {
+    async function updateComment(comment) {
         const commentJSON = JSON.stringify(comment); // make it JSON
         console.log(commentJSON);
 
@@ -69,7 +69,7 @@ const CommentList = ({activeComment, setActiveComment}) => {
 
     // function which sends a DELETE request to the server
     // uid   - id of the comment (in comments) to be sent
-    function sendDeleteComment(cid) {
+    function removeComment(cid) {
         console.log(comments.find(c => c.id == cid))
         return;
         const comment = comments.find(c => c.id == cid); // find user
@@ -98,7 +98,7 @@ const CommentList = ({activeComment, setActiveComment}) => {
 
     function onModalConfirm() {
         const cid = comments.find(c => c.id == activeComment).id;
-        sendDeleteComment(cid);
+        removeComment(cid);
         setActiveComment(0);
 
         cancelButton.current.click(); // close modal

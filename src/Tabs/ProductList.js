@@ -141,7 +141,7 @@ const ProductList = () => {
                 updatedPackagingId, updatedAllergens, updatedCalories, updatedDescription, updatedSmallestAmount);
         })
         //products = changedProducts; // update products value
-        sendPutProduct(pid); // update product with PUT
+        updateProduct(pid); // update product with PUT
     }
 
     // function which updates products state (called when info is changed in SelectedProduct)
@@ -174,7 +174,7 @@ const ProductList = () => {
         
     // function which sends updated product
     // pid   - id of the product (in products) to be sent
-    async function sendPutProduct(pid) {
+    async function updateProduct(pid) {
         const product = products.find(p => p.id == pid); // find product
         const productJSON = JSON.stringify(product); // make it JSON
         console.log(productJSON);
@@ -191,7 +191,7 @@ const ProductList = () => {
     // function which adds a product to the list of products and also POSTs it to the database
     // p   - product to be added
     async function addProduct(p) {
-        const newProduct = await sendPostProduct(p); // send POST request to add product
+        const newProduct = await createProduct(p); // send POST request to add product
         console.log(newProduct);
         const addproduct = (oldProducts => {
             var newProducts = [...oldProducts];
@@ -204,7 +204,7 @@ const ProductList = () => {
 
     // function which sends new product (need to remove id field, used to find newProduct in product list)
     // product   - the product to be sent
-    async function sendPostProduct(product) {
+    async function createProduct(product) {
         const {id, ...rest} = product; // separate id and rest of info
         const productJSON = JSON.stringify(rest); // make it JSON
         console.log(productJSON)
@@ -260,7 +260,7 @@ const ProductList = () => {
         })
     }
 
-    async function sendPostImage() {
+    async function createImage() {
         if (newImage != '') {
             const [fileType, fileFormat] = newImage.type.split('/');
             console.log(fileType, fileFormat);
@@ -305,13 +305,13 @@ const ProductList = () => {
     // reference to the cancel button used to close delete modal
     const confirmDeleteCancelButton = useRef(null);
 
-    function sendDeleteProduct(id) {
+    function removeProduct(id) {
         console.log('fake deleting', id)
     }
 
     function onDeleteModalConfirm() {
         const pid = products.find(p => p.id == activeProduct).id;
-        sendDeleteProduct(pid);
+        removeProduct(pid);
         setActiveProduct(0);
 
         confirmDeleteCancelButton.current.click(); // close modal
@@ -362,7 +362,7 @@ const ProductList = () => {
                                 p = updateProductValues(p, p.id, newName, newPrice,
                                     newAmount, selectedType, selectedPackaging, selectedAllergens,
                                     newCalories, newDescription, newSmallestAmount);
-                                sendPostImage().then(imgId => {
+                                createImage().then(imgId => {
                                     console.log(imgId);
                                     p.imageObjId = imgId;
                                     console.log(p);

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import SelectedEvent from "./SelectedEvent";
-import { getEvents, postEvent, putEvent } from "../api/events";
+import { getEvents, postEvent, putEvent, deleteParticipant, deleteEvent } from "../api/events";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 import ItemList from "../Components/ItemList";
@@ -23,6 +23,20 @@ const EventList = () => {
 
     const putEventMutation = useMutation({
         mutationFn: putEvent,
+        onSuccess: () => {
+            queryClient.refetchQueries({queryKey: ['events']})
+        },
+    })
+
+    const deleteEventMutation = useMutation({
+        mutationFn: deleteEvent,
+        onSuccess: () => {
+            queryClient.refetchQueries({queryKey: ['events']})
+        },
+    })
+
+    const deleteParticipantMutation = useMutation({
+        mutationFn: deleteParticipant,
         onSuccess: () => {
             queryClient.refetchQueries({queryKey: ['events']})
         },
@@ -58,32 +72,6 @@ const EventList = () => {
     const [newMaxParticipants, setNewMaxParticipants] = useState(0);
     const [newParticipants, setNewParticipants] = useState([]);
 
-    // function which sends a DELETE request to the server
-    // uid   - id of the comment (in comments) to be sent
-    function deleteEvent(eid) {
-        console.log(events.find(e => e.id == activeEvent))
-        return;
-        const event = events.find(e => e.id == eid); // find user
-        const eventJSON = JSON.stringify(event); // make it JSON
-        console.log(eventJSON);
-
-        fetch('https://localhost:7027/api/events/'+eid, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: eventJSON,
-        })
-        .then(entry => {
-            console.log(entry)
-        })
-        .catch( err => {
-            console.log(err)
-        })
-
-        //setEvents(oldEvents => {
-        //    return oldEvents.filter(e => e.id !== eid);
-        //})
-    }
-
     function editEvent(eventId, updatedTitle, updatedDescription, updatedPlace, updatedPrice, updatedDate, updatedStartTime, updatedEndTime, updatedMaxParticipants, updatedParticipants) {
         
         var event = events.find(e => e.id == eventId);
@@ -98,13 +86,13 @@ const EventList = () => {
         event.maxParticipants = updatedMaxParticipants;
         event.eventParticipantName = updatedParticipants;
         //setEvents(changedEvents);
-        sendPutEvent(eventId, event);
+        updateEvent(eventId, event);
     }
 
     // function which sends updated event
     // eid     - id of the event (in events) to be sent
     // event   - event data to send with PUT
-    async function sendPutEvent(eid, event) {
+    async function updateEvent(eid, event) {
         const eventJSON = JSON.stringify(event); // make it JSON
         console.log(eventJSON);
 
@@ -117,8 +105,32 @@ const EventList = () => {
         }
     }
 
-    function sendDeleteEvent(id) {
-        console.log('fake deleting', id)
+    // function which removes an event
+    // id   - id of the event to be removed
+    async function removeEvent(id) {
+        try {
+            const entry = await deleteEventMutation.mutateAsync(id)
+            console.log(entry)
+        }
+        catch (err) {
+            console.log(err)
+        }
+    }
+
+    // function which removes a participant from an event
+    // eid     - id of the event
+    // email   - email info of participant
+    async function removeParticipant(eid, email) {
+        const participantJSON = JSON.stringify(email); // make it JSON
+        console.log(participantJSON);
+
+        try {
+            const entry = await deleteParticipantMutation.mutateAsync({id: eid, participantJSON: participantJSON})
+            console.log(entry)
+        }
+        catch (err) {
+            console.log(err)
+        }
     }
 
     // reference to the cancel button used to close modal
@@ -126,7 +138,7 @@ const EventList = () => {
 
     function onModalConfirm() {
         const eid = events.find(e => e.id == activeEvent).id;
-        sendDeleteEvent(eid);
+        removeEvent(eid);
         setActiveEvent(0);
 
         cancelButton.current.click(); // close modal
@@ -162,6 +174,7 @@ const EventList = () => {
                                 <></> :
                                 <SelectedEvent
                                     editEvent={editEvent}
+                                    removeParticipant={removeParticipant}
                                     event={events.find(e => e.id == activeEvent)}
                                     newTitle={newTitle} setNewTitle={setNewTitle}
                                     newDescription={newDescription} setNewDescription={setNewDescription}

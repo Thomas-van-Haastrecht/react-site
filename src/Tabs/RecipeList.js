@@ -64,13 +64,13 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
         recipe.title = updatedTitle;
         recipe.ingredients = updatedIngredients;
         recipe.instructions = updatedInstructions;
-        sendPutRecipe(recipeId, recipe);
+        updateRecipe(recipeId, recipe);
     }
 
     // function which sends updated recipe
     // rid      - id of the recipe (in recipes) to be sent
     // recipe   - recipe data to send with PUT
-    async function sendPutRecipe(rid, recipe) {
+    async function updateRecipe(rid, recipe) {
         //const recipe = recipes.find(r => r.id == rid); // find user
         const recipeJSON = JSON.stringify(recipe); // make it JSON
         console.log(recipeJSON);
@@ -84,7 +84,7 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
         }
     }
 
-    function sendDeleteRecipe(id) {
+    function removeRecipe(id) {
         console.log('fake deleting:', id)
     }
 
@@ -93,7 +93,7 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
 
     function onModalConfirm() {
         const rid = recipes.find(u => u.id == activeRecipe).id;
-        sendDeleteRecipe(rid);
+        removeRecipe(rid);
         setActiveRecipe(0);
 
         cancelButton.current.click(); // close modal

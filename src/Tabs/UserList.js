@@ -69,6 +69,7 @@ const UserList = ({moveToComment, moveToRecipe}) => {
     // updatedEmail   - new email (if changed, otherwise previous value)
     // updatedCity    - new city (if changed, otherwise previous value)
     function editUser(uid, updatedName, updatedEmail, updatedCity) {
+        console.log('editing')
         users.map(user => {
             if (user.id == uid) { // only edit the correct user
                 user.firstName = updatedName;
@@ -78,12 +79,12 @@ const UserList = ({moveToComment, moveToRecipe}) => {
             return user;
         })
         //setUsers(changedUsers);
-        sendPutUser(uid); // update user with PUT
+        updateUser(uid); // update user with PUT
     }
 
     // function which sends updated user
     // uid   - id of the user (in users) to be sent
-    async function sendPutUser(uid) {
+    async function updateUser(uid) {
         const user = users.find(u => u.id == uid); // find user
         const userJSON = JSON.stringify(user); // make it JSON
         console.log(userJSON);
@@ -99,8 +100,7 @@ const UserList = ({moveToComment, moveToRecipe}) => {
 
     // function which sends a DELETE request to the server
     // uid   - id of the user (in users) to be sent
-    async function sendDeleteUser(uid) {
-
+    async function removeUser(uid) {
         try {
             const entry = await deleteUserMutation.mutateAsync(uid)
             console.log(entry)
@@ -108,32 +108,11 @@ const UserList = ({moveToComment, moveToRecipe}) => {
         catch (err) {
             console.log(err)
         }
-        return;
-
-        const user = users.find(u => u.id == uid); // find user
-        const userJSON = JSON.stringify(user); // make it JSON
-        console.log(userJSON);
-
-        fetch('https://localhost:7027/api/users/'+uid, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: userJSON,
-        })
-        .then(entry => {
-            console.log(entry)
-        })
-        .catch( err => {
-            console.log(err)
-        })
-
-        // setUsers(oldUsers => {
-        //     return oldUsers.filter(u => u.id !== uid);
-        // })
     }
 
     function onModalConfirm() {
         const uid = users.find(u => u.id == activeUser).id;
-        sendDeleteUser(uid);
+        removeUser(uid);
         setActiveUser(0);
 
         cancelButton.current.click(); // close modal
