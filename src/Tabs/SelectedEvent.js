@@ -4,6 +4,7 @@ import '../assets/form.css'
 
 // renders edit form for the selected recipe as well as its info
 // editRecipe             - function to change recipe (called when submitting form)
+//removeParticipant       - function to send DELETE request to remove a participant from an event
 // recipe                 - recipe info from recipes list
 // newName                - state of value in the Name edit field
 // setNewName             - function to change newName state
@@ -11,7 +12,7 @@ import '../assets/form.css'
 // setNewIngredients      - function to change newIngredients state
 // newInstructions        - state of value in the Instructions edit field
 // setNewInstructions     - function to change newInstructions state
-const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,  setNewDescription,
+const SelectedEvent = ({editEvent, removeParticipant, event, newTitle, setNewTitle, newDescription,  setNewDescription,
     newPlace, setNewPlace, newPrice, setNewPrice, newStartTime, setNewStartTime, newEndTime, setNewEndTime,
     newDate, setNewDate, newMaxParticipants, setNewMaxParticipants, newParticipants, setNewParticipants}) => {
     // function to handle submitting the form
@@ -169,15 +170,18 @@ const SelectedEvent = ({editEvent, event, newTitle, setNewTitle, newDescription,
                         </div>
                     </form>
 
-                    {/* comments, not fully implemented */}
-                    <p>Participant List:</p>
-                    <ul className="list-group">
-                        {event.eventParticipantName?.map((participant, index) => {
-                            return (
-                                <a key={'paricipant_'+index} className="list-group-item link-primary">{participant}</a>
-                            )
-                        })}
-                    </ul>
+                    <p className="mx-sm-3 mt-3 mb-0">Participant List:</p>
+                        <ul className="list-group">
+                            {event.participants?.map(participant => {
+                                return (
+                                    <div className="input-group mx-sm-3 mb-2">
+                                        <div className="form-control input-group-text">{participant.name}</div>
+                                        <div className="form-control input-group-text">{participant.email}</div>
+                                        <button className="btn btn-danger bi bi-trash product-trash" onClick={() => {removeParticipant(event.id, participant.email)}}></button>
+                                    </div>
+                                )
+                            })}
+                        </ul>
 
                 </div>
             }
