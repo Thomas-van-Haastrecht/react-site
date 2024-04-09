@@ -1,3 +1,5 @@
+import '../assets/modal.css'
+
 // renders a modal to give a pop-up before an item gets deleted
 const ConfirmDeleteModal = ({modalId, modalTitle, divInfoId, cancelButtonRef, onConfirm}) => {
     return (
