@@ -8,6 +8,7 @@ import { getAllergies } from "../api/allergies";
 import { postImage } from "../api/imageobjs";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 import ItemList from "../Components/ItemList";
+import NewItemModal from "../Components/NewItemModal";
 
 // renders the list of products and the active user if one is selected
 const ProductList = () => {
@@ -251,6 +252,27 @@ const ProductList = () => {
         confirmDeleteCancelButton.current.click(); // close modal
     }
 
+    // function defining behavior for new item modal on clicking confirmation button
+    // sent to the new item modal
+    function onNewModalConfirm() {
+        //make new product p with values from form
+        var p = createNewProduct();
+        p = updateProductValues(p, p.id, newName, newPrice,
+            newAmount, selectedType, selectedPackaging, selectedAllergens,
+            newCalories, newDescription, newSmallestAmount);
+        createImage().then(imgId => {
+            console.log(imgId);
+            p.imageObjId = imgId;
+            console.log(p);
+            addProduct(p); // add product to list (also POSTs)
+        })
+        .catch(err => {
+            console.log(err);
+        });
+
+        newProductCancelButton.current.click(); // close modal
+    }
+
     var isLoading = [productStatus, ingredientStatus, allergyStatus, packagingStatus].some(value => value == 'pending')
     var LoadFailed = [productStatus, ingredientStatus, allergyStatus, packagingStatus].some(value => value == 'error')
     // return value (top line provides alternate divs in case loading is not done yet)
@@ -262,17 +284,16 @@ const ProductList = () => {
                 modalTitle={'Remove Product Confirmation'}
                 divInfoId={'toDeleteProductInfo'}
                 cancelButtonRef={confirmDeleteCancelButton}
-                onConfirm={onDeleteModalConfirm} />
+                onConfirm={onDeleteModalConfirm}
+            />
 
             {/* modal for creating a new product */}
-            <div className="modal" id="newProductModal" tabIndex="-1" role="dialog" aria-labelledby="newProductModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-lg mr-5" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="newProductModalLabel">New Product</h5>
-                        </div>
-                        <div className="modal-body mr-5">
-                            <SelectedProduct 
+            <NewItemModal 
+                modalId={'newProductModal'}
+                modalTitle={'New Product'}
+                renderContent={() => {
+                    return (
+                        <SelectedProduct 
                             editProduct={(pid) => {}}
                             product={() => {return createNewProduct()}}
                             packagingInfo={packagingInfo}
@@ -288,33 +309,13 @@ const ProductList = () => {
                             newDescription={newDescription} setNewDescription={setNewDescription}
                             newSmallestAmount={newSmallestAmount} setNewSmallestAmount={setNewSmallestAmount}
                             newImage={newImage} setNewImage={setNewImage}
-                            isNewProduct={true} />
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-dismiss="modal" ref={newProductCancelButton}>Close</button>
-                            <button type="button" className="btn btn-primary" onClick={() => {
-                                //make new product p with values from form
-                                var p = createNewProduct();
-                                p = updateProductValues(p, p.id, newName, newPrice,
-                                    newAmount, selectedType, selectedPackaging, selectedAllergens,
-                                    newCalories, newDescription, newSmallestAmount);
-                                createImage().then(imgId => {
-                                    console.log(imgId);
-                                    p.imageObjId = imgId;
-                                    console.log(p);
-                                    addProduct(p); // add product to list (also POSTs)
-                                })
-                                .catch(err => {
-                                    console.log(err);
-                                });
-
-                                newProductCancelButton.current.click(); // close modal
-                                }
-                            }>Save changes</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                            isNewProduct={true}
+                        />
+                    )
+                }}
+                cancelButtonRef={newProductCancelButton}
+                onConfirm={onNewModalConfirm}
+            />
 
             {/* new product button */}
             <button className="btn btn-primary m-3"
@@ -344,7 +345,8 @@ const ProductList = () => {
                             displayParam={'name'}
                             setActive={setActiveProduct}
                             divInfoId={'toDeleteProductInfo'}
-                            modalId={'deleteProductModal'} />
+                            modalId={'deleteProductModal'}
+                        />
                     </div>
                     <div className="col-6">
                         <div>
@@ -364,7 +366,8 @@ const ProductList = () => {
                                 selectedAllergens={selectedAllergens} setSelectedAllergens={setSelectedAllergens}
                                 newDescription={newDescription} setNewDescription={setNewDescription}
                                 newSmallestAmount={newSmallestAmount} setNewSmallestAmount={setNewSmallestAmount}
-                                newCalories={newCalories} setNewCalories={setNewCalories} />
+                                newCalories={newCalories} setNewCalories={setNewCalories}
+                            />
                             }
                         </div>
                     </div>

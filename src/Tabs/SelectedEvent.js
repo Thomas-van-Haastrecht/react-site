@@ -48,7 +48,7 @@ const SelectedEvent = ({editEvent, removeParticipant, event, newTitle, setNewTit
         <div>
             {event != null && // only show form if product is not null
                 <div>
-                    <h4>Info for "{event.title}"</h4>
+                    {!isNewEvent && <h4>Info for "{event.title}"</h4>}
                     <form className="form-inline" onSubmit={handleSubmit} style={{"paddingRight": "5%"}}>
                         <input className="d-none" type="submit" value="submit" />
                         <input type="hidden" value={event.id} id="eventId" />

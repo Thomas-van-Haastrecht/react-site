@@ -98,7 +98,7 @@ const SelectedProduct = ({
         <div>
             {product != null && // only show form if product is not null
                 <div>
-                    <h4>Info for "{product.name}"</h4>
+                    {!isNewProduct && <h4>Info for "{product.name}"</h4>}
                     <form className="form-inline" onSubmit={e => handleSubmit(e)} style={{"paddingRight": "5%"}}>
                         <input type="hidden" value={product.id} id="pid" />
 

@@ -4,6 +4,7 @@ import { getEvents, postEvent, putEvent, deleteParticipant, deleteEvent } from "
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 import ItemList from "../Components/ItemList";
+import NewItemModal from "../Components/NewItemModal";
 
 // renders the list of events and the active event if one is selected
 const EventList = () => {
@@ -149,14 +150,25 @@ const EventList = () => {
     const cancelButton = useRef(null);
     const newEventCancelButton = useRef(null);
 
-    // function defining behavior for modal onclicking confirmation button
+    // function defining behavior for delete modal on clicking confirmation button
     // sent to the delete modal
-    function onModalConfirm() {
+    function onDeleteModalConfirm() {
         const eid = events.find(e => e.id == activeEvent).id;
         removeEvent(eid);
         setActiveEvent(0);
 
         cancelButton.current.click(); // close modal
+    }
+
+    // function defining behavior for new item modal on clicking confirmation button
+    // sent to the new item modal
+    function onNewModalConfirm() {
+        //make new event with values from form
+        var event = createNewEvent();
+        event = updateEventValues(event);
+        addEvent(event);
+
+        newEventCancelButton.current.click(); // close modal
     }
 
     // function to send a POST request to add an event to the DB
@@ -202,46 +214,35 @@ const EventList = () => {
                 modalTitle={'Remove Event Confirmation'}
                 divInfoId={'toDeleteEventInfo'}
                 cancelButtonRef={cancelButton}
-                onConfirm={onModalConfirm} />
+                onConfirm={onDeleteModalConfirm}
+            />
 
             {/* modal for creating a new event */}
-            <div className="modal" id="newEventModal" tabIndex="-1" role="dialog" aria-labelledby="newEventModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-lg mr-5" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="newEventModalLabel">New Event</h5>
-                        </div>
-                        <div className="modal-body mr-5">
-                            <SelectedEvent
-                                editEvent={(eventId) => {}}
-                                removeParticipant={removeParticipant}
-                                event={createNewEvent}
-                                newTitle={newTitle} setNewTitle={setNewTitle}
-                                newDescription={newDescription} setNewDescription={setNewDescription}
-                                newPlace={newPlace} setNewPlace={setNewPlace}
-                                newPrice={newPrice} setNewPrice={setNewPrice}
-                                newStartTime={newStartTime} setNewStartTime={setNewStartTime}
-                                newEndTime={newEndTime} setNewEndTime={setNewEndTime}
-                                newDate={newDate} setNewDate={setNewDate}
-                                newMaxParticipants={newMaxParticipants} setNewMaxParticipants={setNewMaxParticipants}
-                                newParticipants={newParticipants} setNewParticipants={setNewParticipants}
-                                isNewEvent={true} />
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-dismiss="modal" ref={newEventCancelButton}>Close</button>
-                            <button type="button" className="btn btn-primary" onClick={() => {
-                                //make new product p with values from form
-                                var e = createNewEvent();
-                                e = updateEventValues(e);
-                                addEvent(e);
-
-                                newEventCancelButton.current.click(); // close modal
-                                }
-                            }>Save changes</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <NewItemModal 
+                modalId={'newEventModal'}
+                modalTitle={'New Event'}
+                renderContent={() => {
+                    return (
+                        <SelectedEvent
+                            editEvent={(eventId) => {}}
+                            removeParticipant={removeParticipant}
+                            event={() => createNewEvent}
+                            newTitle={newTitle} setNewTitle={setNewTitle}
+                            newDescription={newDescription} setNewDescription={setNewDescription}
+                            newPlace={newPlace} setNewPlace={setNewPlace}
+                            newPrice={newPrice} setNewPrice={setNewPrice}
+                            newStartTime={newStartTime} setNewStartTime={setNewStartTime}
+                            newEndTime={newEndTime} setNewEndTime={setNewEndTime}
+                            newDate={newDate} setNewDate={setNewDate}
+                            newMaxParticipants={newMaxParticipants} setNewMaxParticipants={setNewMaxParticipants}
+                            newParticipants={newParticipants} setNewParticipants={setNewParticipants}
+                            isNewEvent={true}
+                        />
+                    )
+                }}
+                cancelButtonRef={newEventCancelButton}
+                onConfirm={onNewModalConfirm}
+            />
 
             {/* new event button */}
             <button className="btn btn-primary m-3" 
@@ -274,7 +275,8 @@ const EventList = () => {
                             modalId={'deleteEventModal'}
                             styling={true}
                             subject={(event) => {return Math.round((new Date(event.date) - Date.now()) / (24*60*60*1000))}}
-                            condition={(datediff) => {return (datediff < 0 ? "bg-secondary text-white" : "")}} />
+                            condition={(datediff) => {return (datediff < 0 ? "bg-secondary text-white" : "")}}
+                        />
                     </div>
                     <div className="col-6">
                         <div>
@@ -292,7 +294,8 @@ const EventList = () => {
                                     newEndTime={newEndTime} setNewEndTime={setNewEndTime}
                                     newDate={newDate} setNewDate={setNewDate}
                                     newMaxParticipants={newMaxParticipants} setNewMaxParticipants={setNewMaxParticipants}
-                                    newParticipants={newParticipants} setNewParticipants={setNewParticipants} />
+                                    newParticipants={newParticipants} setNewParticipants={setNewParticipants}
+                                />
                             }
                         </div>
                     </div>
