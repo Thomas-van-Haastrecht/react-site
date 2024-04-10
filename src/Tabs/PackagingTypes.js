@@ -4,6 +4,7 @@ import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getPackagingTypes, postPackagingType, putPackagingType } from "../api/packagingtypes";
 import '../assets/form.css'
+import NewItemModal from "../Components/NewItemModal";
 
 // renders packaging types and the active packaging type if one is selected
 const PackagingTypes = () => {
@@ -97,41 +98,35 @@ const PackagingTypes = () => {
     var LoadFailed = [packagingStatus].some(value => value == 'error')
     return (isLoading ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
         <>
-            <div className="modal" id="newPackagingModal" tabIndex="-1" role="dialog" aria-labelledby="newPackagingModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-lg mr-5" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="newPackagingModalLabel">New Packaging Type</h5>
+            {/* modal for creating a new packaging type */}
+            <NewItemModal 
+                modalId={'newPackagingModal'}
+                modalTitle={'New Packaging Type'}
+                renderContent={() => {
+                    return (
+                        <div>
+                            <form className="form-inline" onSubmit={e => e.preventDefault()} style={{"paddingRight": "5%"}}>
+                                {/* input for name */}
+                                <div className="input-group mx-sm-3 mb-2">
+                                    <div className="input-group-prepend input-group-text form-begin-tag">Name</div>
+                                    <input className="form-control"
+                                        value={newName}
+                                        onChange={e => setNewName(e.target.value)}
+                                        type="text"
+                                        id="name"
+                                        placeholder='New Packaging Type Name'
+                                    />
+                                </div>
+                            </form>
                         </div>
-                        <div className="modal-body mr-5">
-                            <div>
-                                <form className="form-inline" onSubmit={e => e.preventDefault()} style={{"paddingRight": "5%"}}>
-                                    {/* input for name */}
-                                    <div className="input-group mx-sm-3 mb-2">
-                                        <div className="input-group-prepend input-group-text form-begin-tag">Name</div>
-                                        <input className="form-control"
-                                            value={newName}
-                                            onChange={e => setNewName(e.target.value)}
-                                            type="text"
-                                            id="name"
-                                            placeholder='New Packaging Type Name'
-                                        />
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-dismiss="modal" ref={newPackagingCancelButton}>Close</button>
-                            <button type="button" className="btn btn-primary" onClick={() => {
-                                postPackaging();
-
-                                newPackagingCancelButton.current.click(); // close modal
-                                }
-                            }>Save changes</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    )
+                }}
+                cancelButtonRef={newPackagingCancelButton}
+                onConfirm={() => {
+                    postPackaging();
+                    newPackagingCancelButton.current.click(); // close modal
+                }}
+            />
             
             <ConfirmDeleteModal 
                 modalId={'deletePackagingModal'}

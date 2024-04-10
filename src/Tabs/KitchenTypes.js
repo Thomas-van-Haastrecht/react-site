@@ -3,6 +3,7 @@ import ItemList from "../Components/ItemList";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getKitchenTypes, postKitchenType, putKitchenType } from "../api/kitchentypes";
+import NewItemModal from "../Components/NewItemModal";
 
 // renders kitchen types and the active kitchen type if one is selected
 const KitchenTypes = () => {
@@ -96,41 +97,35 @@ const KitchenTypes = () => {
     var LoadFailed = [kitchenStatus].some(value => value == 'error')
     return (isLoading ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
         <>
-            <div className="modal" id="newKitchenTypeModal" tabIndex="-1" role="dialog" aria-labelledby="newKitchenTypeModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-lg mr-5" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="newKitchenTypeModalLabel">New Kitchen Type</h5>
+            {/* modal for creating a new packaging type */}
+            <NewItemModal 
+                modalId={'newKitchenTypeModal'}
+                modalTitle={'New Kitchen Type'}
+                renderContent={() => {
+                    return (
+                        <div>
+                            <form className="form-inline" onSubmit={e => e.preventDefault()} style={{"paddingRight": "5%"}}>
+                                {/* input for name */}
+                                <div className="input-group mx-sm-3 mb-2">
+                                    <div className="input-group-prepend input-group-text form-begin-tag">Name</div>
+                                    <input className="form-control"
+                                        value={newName}
+                                        onChange={e => setNewName(e.target.value)}
+                                        type="text"
+                                        id="name"
+                                        placeholder='New Kitchen Type Name'
+                                    />
+                                </div>
+                            </form>
                         </div>
-                        <div className="modal-body mr-5">
-                            <div>
-                                <form className="form-inline" onSubmit={e => e.preventDefault()} style={{"paddingRight": "5%"}}>
-                                    {/* input for name */}
-                                    <div className="input-group mx-sm-3 mb-2">
-                                        <div className="input-group-prepend input-group-text form-begin-tag">Name</div>
-                                        <input className="form-control"
-                                            value={newName}
-                                            onChange={e => setNewName(e.target.value)}
-                                            type="text"
-                                            id="name"
-                                            placeholder='New Kitchen Type Name'
-                                        />
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-dismiss="modal" ref={newKitchenTypeCancelButton}>Close</button>
-                            <button type="button" className="btn btn-primary" onClick={() => {
-                                postKitchen();
-
-                                newKitchenTypeCancelButton.current.click(); // close modal
-                                }
-                            }>Save changes</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    )
+                }}
+                cancelButtonRef={newKitchenTypeCancelButton}
+                onConfirm={() => {
+                    postKitchen();
+                    newKitchenTypeCancelButton.current.click(); // close modal
+                }}
+            />
 
             <ConfirmDeleteModal 
                 modalId={'deleteKitchenModal'}
