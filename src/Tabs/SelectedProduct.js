@@ -23,20 +23,31 @@ import { useEffect, useRef, useState } from "react";
 // setNewDescription      - function to change newDescription state
 // newSmallestAmount      - state of value in the SmallestAmount edit field
 // setNewSmallestAmount   - function to change newSmallestAmount state
+// isNewProduct           - flag to tell if the function is called for a new product or not (adds image input if true)
 const SelectedProduct = ({
     editProduct, product, packagingInfo, allergyInfo, ingredientTypes, newName, setNewName, newPrice, setNewPrice,
     newAmount, setNewAmount, selectedType, setSelectedType, selectedPackaging, setSelectedPackaging,
     selectedAllergens, setSelectedAllergens, newCalories, setNewCalories, newDescription, setNewDescription,
     newSmallestAmount, setNewSmallestAmount, newImage, setNewImage, isNewProduct=false}) => {
     
+    // references to track pressed buttons
     const submitButton = useRef(null);
     const buttonsPressed = useRef(false);
     
+    // effect which sends updated info once selected allergens are updated
     useEffect(() => {
         if (buttonsPressed.current) {
             submitButton.current.click();
         }
     }, [selectedAllergens])
+
+    // state to track form errors
+    const [formErrors, setFormErrors] = useState({'name': '', 'price': '', 'amount': '', 'type': '', 'packaging': '', 'calories': '', 'description': '', 'smallest': '', 'image': ''})
+
+    // effect which resets form errors when product is changed
+    useEffect(() => {
+        setFormErrors({'name': '', 'price': '', 'amount': '', 'type': '', 'packaging': '', 'calories': '', 'description': '', 'smallest': '', 'image': ''})
+    }, [product])
     
 
     // function to handle submitting the form
@@ -45,21 +56,29 @@ const SelectedProduct = ({
         e.preventDefault(); // prevent page reload
 
         const pid = e.target.pid.value;
-        // if not empty, updated value gets input from form, otherwise uses initial value
-        const updatedName = e.target.name.value ? e.target.name.value : e.target.name.placeholder;
-        const updatedPrice = e.target.price.value ? e.target.price.value : e.target.price.placeholder;
-        const updatedAmount = e.target.amount.value ? e.target.amount.value : e.target.amount.placeholder;
-        const updatedType = e.target.type.value;
-        const updatedPackagingId = e.target.packaging.value;
-        const updatedCalories = e.target.calories.value ? e.target.calories.value : e.target.calories.placeholder;
-        const updatedDescription = e.target.description.value ? e.target.description.value : e.target.description.placeholder;
-        const updatedSmallestAmount = e.target.smallestAmount.value ? e.target.smallestAmount.value : e.target.smallestAmount.placeholder;
 
-        if (new RegExp('^\d*(,\d\d?)?$').test(updatedPrice)) {
-            editProduct(pid, updatedName, updatedPrice, updatedAmount, updatedType, updatedPackagingId, selectedAllergens, updatedCalories, updatedDescription, updatedSmallestAmount);
+        const errors = {
+            'name': (e.target.name.value ? '' : 'Name cannot be empty'),
+            'price': (new RegExp('^\\d*,?\\d*$').test(e.target.price.value) ? '' : 'Invalid price format'),
+            'amount': (e.target.amount.value > 0 ? '' : 'Amount must be a positive number'),
+            'type': (e.target.type.value ? '' : 'Invalid ingredient type'),
+            'packaging': (e.target.packaging.value ? '' : 'Invalid packaging type'),
+            'calories': (e.target.calories.value > 0 ? '' : 'Calorie count must be a positive number'),
+            'description': (e.target.description.value ? '' : 'Description cannot be empty'),
+            'smallest': (e.target.smallestAmount.value > 0 ? '' : 'Smallest amount must be a positive number'),
+            'image': ((!isNewProduct || newImage) ? '' : 'Must upload an image'),
+        };
+
+        if (Object.values(errors).some(v => v != '')) {
+            setFormErrors(errors);
+        } else {
+            // call edit function so user gets new information
+            editProduct(pid);
         }
     }
 
+    // function which handles when an allergy button is pressed
+    // id   - id of allergen being clicked
     function handleAllergyChange(id) {
         buttonsPressed.current = true;
         var updatedAllergens = [...selectedAllergens];
@@ -68,6 +87,8 @@ const SelectedProduct = ({
         //handleSubmit(e);
     }
 
+    // function which handles when an image is selected or removed
+    // e   - event triggered by interacting with the file input
     function handleImage(e) {
         const file = e.target.files[0];
         setNewImage(file ? file : '');
@@ -82,6 +103,7 @@ const SelectedProduct = ({
                         <input type="hidden" value={product.id} id="pid" />
 
                         {/* input for name */}
+                        <div className="text-danger mx-sm-3">{formErrors.name}</div>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className="input-group-prepend input-group-text form-begin-tag">Name</div>
                             <input className="form-control"
@@ -99,6 +121,7 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for price */}
+                        <div className="text-danger mx-sm-3">{formErrors.price}</div>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className="input-group-prepend input-group-text form-begin-tag">Price</div>
                             <div className="input-group-prepend input-group-text bg-white">€</div>
@@ -107,7 +130,7 @@ const SelectedProduct = ({
                                 pattern="^\d*(,\d\d?)?$"
                                 onChange={e => {
                                     const value = e.target.value;
-                                    const check = new RegExp('^\d*,?\d*$').test(value)
+                                    const check = new RegExp('^\\d*,?\\d*$').test(value)
                                     console.log(value, check)
                                     if (check) {
                                         setNewPrice(value)
@@ -125,6 +148,8 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for amount */}
+                        <div className="text-danger mx-sm-3">{formErrors.amount}</div>
+                        <div className="text-danger mx-sm-3">{formErrors.type}</div>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className="input-group-prepend input-group-text form-begin-tag">Amount</div>
                             <input className="form-control"
@@ -162,6 +187,7 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for calories */}
+                        <div className="text-danger mx-sm-3">{formErrors.calories}</div>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className="input-group-prepend input-group-text form-begin-tag">Calories</div>
                             <input className="form-control"
@@ -180,6 +206,7 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for description */}
+                        <div className="text-danger mx-sm-3">{formErrors.description}</div>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className="input-group-prepend input-group-text form-begin-tag">Description</div>
                             <textarea className="form-control"
@@ -198,6 +225,7 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for smallestAmount */}
+                        <div className="text-danger mx-sm-3">{formErrors.smallest}</div>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className="input-group-prepend input-group-text form-begin-tag">Minimum</div>
                             <input className="form-control"
@@ -216,6 +244,7 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for packaging types */}
+                        <div className="text-danger mx-sm-3">{formErrors.packaging}</div>
                         <input type='hidden' value={product.packagingId} name='packagingId'></input>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className="input-group-prepend input-group-text form-begin-tag">Packaging</div>
@@ -269,6 +298,7 @@ const SelectedProduct = ({
                         </div>
 
                         {/* input for file */}
+                        <div className="text-danger mx-sm-3">{formErrors.image}</div>
                         {isNewProduct && // only show new image upload for new images
                         <>
                             <div className="input-group mx-sm-3 mb-2">

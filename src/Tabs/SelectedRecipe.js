@@ -3,21 +3,27 @@ import React from "react";
 import '../assets/form.css'
 
 // renders edit form for the selected recipe as well as its info
-// editRecipe             - function to change recipe (called when submitting form)
-// recipe                 - recipe info from recipes list
-// newTitle               - state of value in the Title edit field
-// setNewTitle            - function to change newTitle state
-// newIngredients         - state of value in the Ingredients edit field (currently not implemented)
-// setNewIngredients      - function to change newIngredients state
-// newInstructions        - state of value in the Instructions edit field
-// setNewInstructions     - function to change newInstructions state
+// editRecipe           - function to change recipe (called when submitting form)
+// recipe               - recipe info from recipes list
+// newTitle             - state of value in the Title edit field
+// setNewTitle          - function to change newTitle state
+// newIngredients       - state of value in the Ingredients edit field (currently not implemented)
+// setNewIngredients    - function to change newIngredients state
+// newInstructions      - state of value in the Instructions edit field
+// setNewInstructions   - function to change newInstructions state
 const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle, setNewTitle, newIngredients, setNewIngredients, newInstructions, setNewInstructions, moveToComment}) => {
     // state tracking the new instruction field (empty field after last existing instruction)
     const [newInstruction, setNewInstruction] = useState("");
     const [newAmount, setNewAmount] = useState(0);
     const [selectedType, setSelectedType] = useState("");
+    
+    // state to track form errors
+    const [formErrors, setFormErrors] = useState({'title': '', 'ingredients': '', 'instructions': ''})
 
-    const form = useRef(null);
+    // effect which resets form errors when recipe is changed
+    useEffect(() => {
+        setFormErrors({'name': '', 'ingredients': '', 'instructions': ''})
+    }, [recipe])
 
     // effect which adds newInstruction to the recipe's instructions if newInstruction changes
     useEffect(() => {
@@ -43,11 +49,18 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
         // if not empty, gets input from form, otherwise uses initial value (i.e. value is unchanged)
         const updatedTitle = e.target.title.value ? e.target.title.value : e.target.title.placeholder;
 
-        // call edit function so user gets new information
-        editRecipe(recipeId, updatedTitle, newIngredients, newInstructions);
-        
-        // reset form fields
-        setNewTitle("");
+        const errors = {
+            'title': (e.target.title.value ? '' : 'Title cannot be empty'),
+            //'email': (e.target.email.value ? '' : 'Email cannot be empty'),
+            //'city': (e.target.city.value ? '' : 'City cannot be empty')
+        };
+
+        if (Object.values(errors).some(v => v != '')) {
+            setFormErrors(errors);
+        } else {
+            // call edit function so user gets new information
+            editRecipe(recipeId);
+        }
     }
 
     // function which removes an existing instruction and updates the recipe
@@ -109,10 +122,12 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
                 <div>
                     <h4>Info for "{recipe.title}"</h4>
 
-                    <form className="form-inline" onSubmit={handleSubmit} ref={form}>
+                    <form className="form-inline" onSubmit={handleSubmit}>
+                        <input className="d-none" type="submit" value="submit" />
                         <input type="hidden" value={recipe.id} id="recipeId" />
 
                         {/* input for title */}
+                        <div className="text-danger mx-sm-3">{formErrors.title}</div>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className="input-group-prepend input-group-text form-begin-tag">Title</div>
                             <input className="form-control"
@@ -173,17 +188,6 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
                         })}
 
                         <div>&nbsp;</div>
-
-                        {/* <div className="input-group mx-sm-3 mb-2">
-                            <input className="form-control"
-                                value={newInstruction}
-                                placeholder="Next Instruction Step"
-                                onChange={e => {setNewInstruction(e.target.value)}}
-                                type="text"
-                                id={newInstructions.length}
-                            />
-                            <input className="btn btn-secondary input-group-append" type="submit" value="Edit" />
-                        </div> */}
 
                         {/* input for instructions */}
                         <label htmlFor="instructions" className="control-label mx-sm-3">Instructions:</label>

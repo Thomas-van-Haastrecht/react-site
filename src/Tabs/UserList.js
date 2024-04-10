@@ -6,15 +6,12 @@ import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 import ItemList from "../Components/ItemList";
 
 // renders the list of users and the active user if one is selected
-// handleTabChange   - function to switch to a different tab (used when clicking on a recipe made by a user)
-// setActiveRecipe   - function used to set the active recipe (used when clicking on a recipe made by a user)
+// moveToComment   - function to switch to a comment
+// moveToRecipe    - function to switch to a recipe
 const UserList = ({moveToComment, moveToRecipe}) => {
-
-    
-
     // reference to the cancel button used to close modal
     const cancelButton = useRef(null);
-
+    // Query Client used to force a refetch after any changes (PUT/POST/DELETE) are made
     const queryClient = useQueryClient();
     // GET methods
     const {status: userStatus, error: userError, data: users} = useQuery({
@@ -65,27 +62,18 @@ const UserList = ({moveToComment, moveToRecipe}) => {
 
     // function which updates users state (called when info is changed in SelectedUser)
     // uid            - id of the user to be changed
-    // updatedName    - new name (if changed, otherwise previous value)
-    // updatedEmail   - new email (if changed, otherwise previous value)
-    // updatedCity    - new city (if changed, otherwise previous value)
-    function editUser(uid, updatedName, updatedEmail, updatedCity) {
-        console.log('editing')
-        users.map(user => {
-            if (user.id == uid) { // only edit the correct user
-                user.firstName = updatedName;
-                user.email = updatedEmail;
-                user.cityOfResidence = updatedCity;
-            }
-            return user;
-        })
+    function editUser(uid) {
+        var user = users.find(u => u.id == uid)
+        user.name = newName;
+        user.email = newEmail;
+        user.cityOfResidence = newCity;
         //setUsers(changedUsers);
-        updateUser(uid); // update user with PUT
+        updateUser(uid, user); // update user with PUT
     }
 
     // function which sends updated user
     // uid   - id of the user (in users) to be sent
-    async function updateUser(uid) {
-        const user = users.find(u => u.id == uid); // find user
+    async function updateUser(uid, user) {
         const userJSON = JSON.stringify(user); // make it JSON
         console.log(userJSON);
 
@@ -110,6 +98,8 @@ const UserList = ({moveToComment, moveToRecipe}) => {
         }
     }
 
+    // function defining behavior for modal onclicking confirmation button
+    // sent to the delete modal
     function onModalConfirm() {
         const uid = users.find(u => u.id == activeUser).id;
         removeUser(uid);
@@ -123,6 +113,7 @@ const UserList = ({moveToComment, moveToRecipe}) => {
     // return value (top line provides alternate divs in case loading is not done yet)
     return (isLoading ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
         <>
+            {/* Modal component, renders modal when delete button is pressed */}
             <ConfirmDeleteModal 
                 modalId={'deleteUserModal'}
                 modalTitle={'Remove User Confirmation'}

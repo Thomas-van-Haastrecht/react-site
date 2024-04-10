@@ -5,7 +5,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getPackagingTypes, postPackagingType, putPackagingType } from "../api/packagingtypes";
 import '../assets/form.css'
 
+// renders packaging types and the active packaging type if one is selected
 const PackagingTypes = () => {
+    // Query Client used to force a refetch after any changes (PUT/POST/DELETE) are made
     const queryClient = useQueryClient();
     // GET methods
     const {status: packagingStatus, error: packagingError, data: packagingInfo} = useQuery({
@@ -28,8 +30,10 @@ const PackagingTypes = () => {
         },
     })
 
+    // state keeping track of the active packaging
     const [activePackaging, setActivePackaging] = useState(0);
 
+    // state to track value of input to the edit field for a packaging type
     const [newName, setNewName] = useState("");
 
     // effect to reset all form fields when active product changes
@@ -46,6 +50,8 @@ const PackagingTypes = () => {
     const confirmDeleteCancelButton = useRef(null);
     const newPackagingCancelButton = useRef(null);
 
+    // function defining behavior for modal onclicking confirmation button (not implemented)
+    // sent to the delete modal
     function onDeleteModalConfirm() {
         //const pid = products.find(p => p.id == activeProduct).id;
         //sendDeleteProduct(pid);
@@ -54,6 +60,8 @@ const PackagingTypes = () => {
         confirmDeleteCancelButton.current.click(); // close modal
     }
 
+    // function which sends a PUT request to DB to update packaging type
+    // e   - event which was triggered
     async function updatePackaging(e) {
         e.preventDefault();
         const id = e.target.id.value;
@@ -71,6 +79,7 @@ const PackagingTypes = () => {
         }
     }
 
+    // function which sends a POST request to DB to create a new packaging type
     async function postPackaging() {
         const packagingJSON = JSON.stringify({ 'name' : newName }); // make it JSON
         console.log(packagingJSON);

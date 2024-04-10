@@ -4,7 +4,9 @@ import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getKitchenTypes, postKitchenType, putKitchenType } from "../api/kitchentypes";
 
+// renders kitchen types and the active kitchen type if one is selected
 const KitchenTypes = () => {
+    // Query Client used to force a refetch after any changes (PUT/POST/DELETE) are made
     const queryClient = useQueryClient();
     // GET methods
     const {status: kitchenStatus, error: kitchenError, data: kitchenTypes} = useQuery({
@@ -27,8 +29,10 @@ const KitchenTypes = () => {
         },
     })
 
+    // state keeping track of the active kitchen type
     const [activeKitchenType, setActiveKitchenType] = useState(0);
 
+    // state to track value of input to the edit field for a kitchen type
     const [newName, setNewName] = useState("");
 
     // effect to reset all form fields when active product changes
@@ -45,6 +49,8 @@ const KitchenTypes = () => {
     const confirmDeleteCancelButton = useRef(null);
     const newKitchenTypeCancelButton = useRef(null);
 
+    // function defining behavior for modal onclicking confirmation button (not implemented)
+    // sent to the delete modal
     function onDeleteModalConfirm() {
         //const pid = products.find(p => p.id == activeProduct).id;
         //sendDeleteProduct(pid);
@@ -53,6 +59,8 @@ const KitchenTypes = () => {
         confirmDeleteCancelButton.current.click(); // close modal
     }
 
+    // function which sends a PUT request to DB to update kitchen type
+    // e   - event which was triggered
     async function updateKitchenType(e) {
         e.preventDefault();
         const id = e.target.id.value;
@@ -70,6 +78,7 @@ const KitchenTypes = () => {
         }
     }
 
+    // function which sends a POST request to DB to create a new kitchen type
     async function postKitchen() {
         const kitchenJSON = JSON.stringify({ 'name' : newName }); // make it JSON
         console.log(kitchenJSON);

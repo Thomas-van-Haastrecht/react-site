@@ -5,7 +5,11 @@ import { getComments, postComment, putComment } from "../api/comments";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 import ItemList from "../Components/ItemList";
 
+// renders the list of comments and the active comment if one is selected (activeComment state lifted to parent so it can be used by other tabs)
+// activecomment      - state tracking which comment is active
+// setActiveComment   - function used to set the active comment
 const CommentList = ({activeComment, setActiveComment}) => {
+    // Query Client used to force a refetch after any changes (PUT/POST/DELETE) are made
     const queryClient = useQueryClient();
     // GET method
     const {status: commentStatus, error: commentError, data: comments} = useQuery({
@@ -68,7 +72,7 @@ const CommentList = ({activeComment, setActiveComment}) => {
     }
 
     // function which sends a DELETE request to the server
-    // uid   - id of the comment (in comments) to be sent
+    // cid   - id of the comment (in comments) to be sent
     function removeComment(cid) {
         console.log(comments.find(c => c.id == cid))
         return;
@@ -87,15 +91,13 @@ const CommentList = ({activeComment, setActiveComment}) => {
         .catch( err => {
             console.log(err)
         })
-
-        // setComments(oldComments => {
-        //     return oldComments.filter(c => c.id !== cid);
-        // })
     }
 
     // reference to the cancel button used to close modal
     const cancelButton = useRef(null);
 
+    // function defining behavior for modal onclicking confirmation button
+    // sent to the delete modal
     function onModalConfirm() {
         const cid = comments.find(c => c.id == activeComment).id;
         removeComment(cid);
@@ -108,6 +110,7 @@ const CommentList = ({activeComment, setActiveComment}) => {
     var LoadFailed = commentStatus == 'error'
     return ( isLoading ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
         <>
+            {/* Modal component, renders modal when delete button is pressed */}
             <ConfirmDeleteModal 
                 modalId={'deleteCommentModal'}
                 modalTitle={'Remove Comment Confirmation'}

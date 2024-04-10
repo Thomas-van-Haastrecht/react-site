@@ -9,9 +9,9 @@ import { postImage } from "../api/imageobjs";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 import ItemList from "../Components/ItemList";
 
-
 // renders the list of products and the active user if one is selected
 const ProductList = () => {
+    // Query Client used to force a refetch after any changes (PUT/POST/DELETE) are made
     const queryClient = useQueryClient();
     // GET methods
     const {status: productStatus, error: productError, data: products} = useQuery({
@@ -38,8 +38,10 @@ const ProductList = () => {
 
     const postProductMutation = useMutation({
         mutationFn: postProduct,
-        onSuccess: () => {
-            queryClient.refetchQueries({queryKey: ['products']})
+        onSuccess: async (data) => {
+            await queryClient.refetchQueries({queryKey: ['products']})
+            var result = await data.json()
+            setActiveProduct(result.id)
         },
     })
 
@@ -50,45 +52,13 @@ const ProductList = () => {
         },
     })
 
-    // // states keeping track of the list of products and whether GET requests are done and successful
-    // const [products, setProducts] = useState([])
-    // const [packagingInfo, setPackagingInfo] = useState([])
-    // const [allergyInfo, setAllergyInfo] = useState([])
-    // const [ingredientTypes, setIngredientTypes] = useState([])
-    // const [isLoaded, setLoaded] = useState(false)
-    // const [LoadFailed, setLoadFailed] = useState(false)
-
     // state keeping track of the active product
     const [activeProduct, setActiveProduct] = useState(0);
-
-    // // effect which runs on page load and calls the fetchData function to retrieve product list
-    // useEffect( () => {
-    //     /// Create an async function within the useEffect hook
-    //     const fetch = async(urls) => {
-    //         await Promise.all(urls.map(url => fetchData(url)))
-    //         .then(result => {
-    //             console.log(result)
-    //             setProducts(result[0])
-    //             setPackagingInfo(result[1])
-    //             setAllergyInfo(result[2])
-    //             setIngredientTypes(result[3])
-    //         })
-    //         .catch( err => {
-    //             console.log(err)
-    //             setLoadFailed(true)
-    //         })
-    //         setLoaded(true)
-    //     }
-    //     /// Call the function
-    //     fetch(['https://localhost:7027/api/products', 'https://localhost:7027/api/packagingtypes', 'https://localhost:7027/api/allergies', 'https://localhost:7027/api/products/ingredienttypes'])
-    // }, [])
 
     // effect which stores product info in local storage whenever users state is changed
     useEffect(() => {
         localStorage.setItem("PRODUCTS", JSON.stringify(products));
     }, [products]);
-
-
 
     // states to track values of input to the edit fields in selectedProduct
     const [newName, setNewName] = useState("");
@@ -124,58 +94,33 @@ const ProductList = () => {
     }, [activeProduct]);
 
     // function which updates products state (called when info is changed in SelectedProduct)
-    // pid                     - id of the product to be changed
-    // updatedName             - new name (if changed, otherwise previous value)
-    // updatedPrice            - new price (if changed, otherwise previous value)
-    // updatedAmount           - new amount (if changed, otherwise previous value)
-    // updatedType             - new ingredientType (if changed, otherwise previous value)
-    // updatedPackagingId      - id of new packaging name (if changed, otherwise previous value)
-    // updatedAllergens        - list of ids of new allergens (if changed, otherwise previous value)
-    // updatedCalories         - new calories (if changed, otherwise previous value)
-    // updatedDescription      - new description (if changed, otherwise previous value)
-    // updatedSmallestAmount   - new smallestAmount (if changed, otherwise previous value)
-    function editProduct(pid, updatedName, updatedPrice, updatedAmount, updatedType, updatedPackagingId, updatedAllergens, updatedCalories, updatedDescription, updatedSmallestAmount) {
-        products.map(product => {
-            return updateProductValues(
-                product, pid, updatedName, updatedPrice, updatedAmount, updatedType,
-                updatedPackagingId, updatedAllergens, updatedCalories, updatedDescription, updatedSmallestAmount);
-        })
+    // pid   - id of the product to be changed
+    function editProduct(pid) {
+        var p = products?.find(p => p.id == pid)
+        p = updateProductValues(p)
         //products = changedProducts; // update products value
-        updateProduct(pid); // update product with PUT
+        updateProduct(pid, p); // update product with PUT
     }
 
     // function which updates products state (called when info is changed in SelectedProduct)
-    // product          - product to update
-    // pid              - id of the product to be changed
-    // pname            - new name (if changed, otherwise previous value)
-    // price            - new price (if changed, otherwise previous value)
-    // amount           - new amount (if changed, otherwise previous value)
-    // type             - new ingredientType (if changed, otherwise previous value)
-    // packagingId      - id of new packaging name (if changed, otherwise previous value)
-    // allergens        - list of ids of new allergens (if changed, otherwise previous value)
-    // calories         - new calories (if changed, otherwise previous value)
-    // description      - new description (if changed, otherwise previous value)
-    // smallestAmount   - new smallestAmount (if changed, otherwise previous value)
-    function updateProductValues(product, pid, pname, price, amount, type, packagingId, allergens, calories, description, smallestAmount) {
-        if (product.id == pid) { // only edit the correct product
-            product.name = pname;
-            product.price = +price.replace(',','.');  // + converts to number
-            product.amount = +amount;
-            product.ingredientType = type;
-            product.packagingid = packagingId;
-            product.packagingName = packagingInfo.find(p => p.id == packagingId).name;
-            product.allergies = allergens.map(id => allergyInfo.find(a => a.id == id));
-            product.calories = +calories;
-            product.description = description;
-            product.smallestAmount = +smallestAmount;
-        }
+    // product   - product to update
+    function updateProductValues(product) {
+        product.name = newName;
+        product.price = +newPrice.replace(',','.');  // + converts to number
+        product.amount = +newAmount;
+        product.ingredientType = selectedType;
+        product.packagingid = selectedPackaging;
+        product.packagingName = packagingInfo.find(p => p.id == selectedPackaging).name;
+        product.allergies = selectedAllergens.map(id => allergyInfo.find(a => a.id == id));
+        product.calories = +newCalories;
+        product.description = newDescription;
+        product.smallestAmount = +newSmallestAmount;
         return product;
     }
         
     // function which sends updated product
     // pid   - id of the product (in products) to be sent
-    async function updateProduct(pid) {
-        const product = products.find(p => p.id == pid); // find product
+    async function updateProduct(pid, product) {
         const productJSON = JSON.stringify(product); // make it JSON
         console.log(productJSON);
 
@@ -189,30 +134,14 @@ const ProductList = () => {
     }
 
     // function which adds a product to the list of products and also POSTs it to the database
-    // p   - product to be added
-    async function addProduct(p) {
-        const newProduct = await createProduct(p); // send POST request to add product
-        console.log(newProduct);
-        const addproduct = (oldProducts => {
-            var newProducts = [...oldProducts];
-            newProducts.push(newProduct);
-            return newProducts;
-        });
-        //products = addproduct(products);
-        setActiveProduct(newProduct.id); // display new product form
-    }
-
-    // function which sends new product (need to remove id field, used to find newProduct in product list)
-    // product   - the product to be sent
-    async function createProduct(product) {
+    // product   - product to be added
+    async function addProduct(product) {
         const {id, ...rest} = product; // separate id and rest of info
         const productJSON = JSON.stringify(rest); // make it JSON
         console.log(productJSON)
 
         try {
             const entry = await postProductMutation.mutateAsync(productJSON)
-            const result = await entry.json();
-            return result;
         }
         catch (err) {
             console.log(err)
@@ -260,6 +189,8 @@ const ProductList = () => {
         })
     }
 
+    // function which converts an image to the correct format and sends it to the DB
+    // returns image id of created imageObj
     async function createImage() {
         if (newImage != '') {
             const [fileType, fileFormat] = newImage.type.split('/');
@@ -305,10 +236,13 @@ const ProductList = () => {
     // reference to the cancel button used to close delete modal
     const confirmDeleteCancelButton = useRef(null);
 
+    // function which DELETES a product from DB (not implemented)
     function removeProduct(id) {
         console.log('fake deleting', id)
     }
 
+    // function defining behavior for modal onclicking confirmation button
+    // sent to the delete modal
     function onDeleteModalConfirm() {
         const pid = products.find(p => p.id == activeProduct).id;
         removeProduct(pid);
@@ -322,6 +256,7 @@ const ProductList = () => {
     // return value (top line provides alternate divs in case loading is not done yet)
     return (isLoading ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
         <>
+            {/* Modal component, renders modal when delete button is pressed */}
             <ConfirmDeleteModal 
                 modalId={'deleteProductModal'}
                 modalTitle={'Remove Product Confirmation'}
@@ -329,6 +264,7 @@ const ProductList = () => {
                 cancelButtonRef={confirmDeleteCancelButton}
                 onConfirm={onDeleteModalConfirm} />
 
+            {/* modal for creating a new product */}
             <div className="modal" id="newProductModal" tabIndex="-1" role="dialog" aria-labelledby="newProductModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-lg mr-5" role="document">
                     <div className="modal-content">
@@ -337,7 +273,7 @@ const ProductList = () => {
                         </div>
                         <div className="modal-body mr-5">
                             <SelectedProduct 
-                            editProduct={(pid, updatedName, updatedPrice, updatedAmount, updatedType, updatedPackagingId, updatedAllergens, updatedCalories, updatedDescription, updatedSmallestAmount) => {}}
+                            editProduct={(pid) => {}}
                             product={() => {return createNewProduct()}}
                             packagingInfo={packagingInfo}
                             allergyInfo={allergyInfo}
@@ -380,7 +316,26 @@ const ProductList = () => {
                 </div>
             </div>
 
-            <button className="btn btn-primary m-3" onClick={() => setActiveProduct(0)} data-toggle="modal" data-target="#newProductModal">New Product</button>
+            {/* new product button */}
+            <button className="btn btn-primary m-3"
+                onClick={() => { // onClick function sets all new value states to default values
+                    setActiveProduct(0)
+                    var p = createNewProduct()
+                    setNewName(p.name);
+                    setNewPrice(String(p.price).replace('.',','));
+                    setNewAmount(p.amount);
+                    setNewCalories(p.calories);
+                    setNewSmallestAmount(p.smallestAmount);
+                    setNewDescription(p.description);
+                    setSelectedType(p.ingredientType);
+                    setSelectedPackaging(p.packagingId);
+                    setSelectedAllergens(p.allergies);
+                }}
+                data-toggle="modal"
+                data-target="#newProductModal"
+            >New Product</button>
+
+            {/* actual list and detail */}
             <div className="container-fluid mb-5">
                 <div className="row">
                     <div className="col-4">

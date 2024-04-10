@@ -1,24 +1,28 @@
-// renders edit form for the selected user as well as their info
-// editUser       - function to change user (called when submitting form)
-// user           - user info from users list (redundant since userInfo has this info as well)
-// newName        - state of value in the Name edit field
-// setNewName     - function to change newName state
-// newEmail       - state of value in the Email edit field
-// setNewEmail    - function to change newEmail state
-// newCity        - state of value in the City edit field
-// setNewCity     - function to change newCity state
-// userInfo       - state which tracks userInfo (from GET request)
-// isLoaded       - state which tracks whether GET request for UserInfo has completed
-// loadFailed     - state which tracks whether GET request for UserInfo has failed
-
 import { getCommentsByUser } from "../api/comments";
 import { getUser } from "../api/users";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import '../assets/form.css'
+import { useEffect, useState } from "react";
 
+// renders edit form for the selected user as well as their info
+// editUser        - function to change user (called when submitting form)
+// activeUser      - user info from users list
+// newName         - state of value in the Name edit field
+// setNewName      - function to change newName state
+// newEmail        - state of value in the Email edit field
+// setNewEmail     - function to change newEmail state
+// newCity         - state of value in the City edit field
+// setNewCity      - function to change newCity state
+// moveToComment   - function which sets active comment and active tab in order to switch to the view of specified comment
+// moveToRecipe    - function which sets active recipe and active tab in order to switch to the view of specified recipe
+const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setNewEmail, newCity, setNewCity, moveToComment, moveToRecipe}) => {
+    // state to track form errors
+    const [formErrors, setFormErrors] = useState({'name': '', 'email': '', 'city': ''})
 
-// moveToRecipe   - function which sets active recipe and active tab in order to switch to the view of specified recipe
-const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setNewEmail, newCity, setNewCity, moveToRecipe, moveToComment}) => {
+    // effect which resets form errors when user is changed
+    useEffect(() => {
+        setFormErrors({'name': '', 'email': '', 'city': ''})
+    }, [activeUser])
 
     // GET methods
     const {status: userStatus, error: userError, data: userInfo} = useQuery({
@@ -38,12 +42,19 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
 
         const uid = e.target.uid.value;
         // if not empty, gets input from form, otherwise uses initial value (i.e. value is unchanged)
-        const updatedName = e.target.name.value ? e.target.name.value : e.target.name.placeholder;
-        const updatedEmail = e.target.email.value ? e.target.email.value : e.target.email.placeholder;
-        const updatedCity = e.target.city.value ? e.target.city.value : e.target.city.placeholder;
+        const errors = {
+            'name': (e.target.name.value ? '' : 'Name cannot be empty'),
+            'email': (e.target.email.value ? '' : 'Email cannot be empty'),
+            'city': (e.target.city.value ? '' : 'City cannot be empty')
+        };
 
-        // call edit function so user gets new information
-        editUser(uid, updatedName, updatedEmail, updatedCity);
+        if (Object.values(errors).some(v => v != '')) {
+            setFormErrors(errors);
+        } else {
+            // call edit function so user gets new information
+            editUser(uid);
+        }
+
     }
 
     // return value (top line provides alternate divs in case loading is not done yet)
@@ -60,6 +71,7 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
                         <input type="hidden" value={activeUser} id="uid" />
 
                         {/* input for name */}
+                        <div className="text-danger mx-sm-3">{formErrors.name}</div>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className="input-group-prepend input-group-text form-begin-tag">Name</div>
                             <input className="form-control"
@@ -72,6 +84,7 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
                         </div>
 
                         {/* input for email */}
+                        <div className="text-danger mx-sm-3">{formErrors.email}</div>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className="input-group-prepend input-group-text form-begin-tag">Email</div>
                             <input className="form-control"
@@ -84,6 +97,7 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
                         </div>
 
                         {/* input for city */}
+                        <div className="text-danger mx-sm-3">{formErrors.city}</div>
                         <div className="input-group mx-sm-3 mb-2">
                             <div className="input-group-prepend input-group-text form-begin-tag">City</div>
                             <input className="form-control"

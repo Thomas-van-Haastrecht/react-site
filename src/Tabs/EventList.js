@@ -5,7 +5,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ConfirmDeleteModal from "../Components/ConfirmDeleteModal";
 import ItemList from "../Components/ItemList";
 
+// renders the list of events and the active event if one is selected
 const EventList = () => {
+    // Query Client used to force a refetch after any changes (PUT/POST/DELETE) are made
     const queryClient = useQueryClient();
     // GET method
     const {status: eventStatus, error: eventError, data: events} = useQuery({
@@ -16,8 +18,10 @@ const EventList = () => {
     // POST/PUT/DELETE
     const postEventMutation = useMutation({
         mutationFn: postEvent,
-        onSuccess: () => {
-            queryClient.refetchQueries({queryKey: ['events']})
+        onSuccess: async (data) => {
+            await queryClient.refetchQueries({queryKey: ['events']})
+            var result = await data.json()
+            setActiveEvent(result.id)
         },
     })
 
@@ -72,21 +76,29 @@ const EventList = () => {
     const [newMaxParticipants, setNewMaxParticipants] = useState(0);
     const [newParticipants, setNewParticipants] = useState([]);
 
-    function editEvent(eventId, updatedTitle, updatedDescription, updatedPlace, updatedPrice, updatedDate, updatedStartTime, updatedEndTime, updatedMaxParticipants, updatedParticipants) {
-        
+    // function which changes an event and sends a PUT request to the server
+    // eventId   - id of the event to be edited
+    function editEvent(eventId) {
         var event = events.find(e => e.id == eventId);
 
-        event.title = updatedTitle;
-        event.description = updatedDescription;
-        event.place = updatedPlace;
-        event.price = +updatedPrice.replace(',','.');
-        event.startTime = updatedStartTime;
-        event.endTime = updatedEndTime;
-        event.date = updatedDate;
-        event.maxParticipants = updatedMaxParticipants;
-        event.eventParticipantName = updatedParticipants;
+        event = updateEventValues(event);
         //setEvents(changedEvents);
         updateEvent(eventId, event);
+    }
+
+    // function which sets all properties of an event to be those saved in the states of the new values
+    // event   - event to update
+    function updateEventValues(event) {
+        event.title = newTitle;
+        event.description = newDescription;
+        event.place = newPlace;
+        event.price = +newPrice.replace(',','.');
+        event.startTime = newStartTime;
+        event.endTime = newEndTime;
+        event.date = newDate;
+        event.maxParticipants = newMaxParticipants;
+        event.participants = newParticipants;
+        return event;
     }
 
     // function which sends updated event
@@ -135,7 +147,10 @@ const EventList = () => {
 
     // reference to the cancel button used to close modal
     const cancelButton = useRef(null);
+    const newEventCancelButton = useRef(null);
 
+    // function defining behavior for modal onclicking confirmation button
+    // sent to the delete modal
     function onModalConfirm() {
         const eid = events.find(e => e.id == activeEvent).id;
         removeEvent(eid);
@@ -144,10 +159,44 @@ const EventList = () => {
         cancelButton.current.click(); // close modal
     }
 
+    // function to send a POST request to add an event to the DB
+    // event   - event info to be sent to the DB
+    async function addEvent(event) {
+        const {id, ...rest} = event; // separate id and rest of info
+        const eventJSON = JSON.stringify(rest); // make it JSON
+        console.log(eventJSON)
+
+        try {
+            await postEventMutation.mutateAsync(eventJSON)
+        }
+        catch (err) {
+            console.log(err)
+            // return -1; // potentially return error
+        }
+    }
+
+    // function which creates a default event used when showing the form for a new event
+    function createNewEvent() {
+        var e = {
+            "id":0,
+            "title":"Event",
+            "description":"Description",
+            "date":"2024-01-01",
+            "startTime":"09:00:00",
+            "endTime":"17:00:00",
+            "participants":[],
+            "place":"Nowhere",
+            "price":0.01,
+            "maxParticipants":0,
+        }
+        return e;
+    }
+
     var isLoading = eventStatus == 'pending'
     var LoadFailed = eventStatus == 'error'
     return ( isLoading ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
         <>
+            {/* modal component, renders modal when delete button is pressed */}
             <ConfirmDeleteModal 
                 modalId={'deleteEventModal'}
                 modalTitle={'Remove Event Confirmation'}
@@ -155,7 +204,66 @@ const EventList = () => {
                 cancelButtonRef={cancelButton}
                 onConfirm={onModalConfirm} />
 
-            <div className="container-fluid mt-5">
+            {/* modal for creating a new event */}
+            <div className="modal" id="newEventModal" tabIndex="-1" role="dialog" aria-labelledby="newEventModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-lg mr-5" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="newEventModalLabel">New Event</h5>
+                        </div>
+                        <div className="modal-body mr-5">
+                            <SelectedEvent
+                                editEvent={(eventId) => {}}
+                                removeParticipant={removeParticipant}
+                                event={createNewEvent}
+                                newTitle={newTitle} setNewTitle={setNewTitle}
+                                newDescription={newDescription} setNewDescription={setNewDescription}
+                                newPlace={newPlace} setNewPlace={setNewPlace}
+                                newPrice={newPrice} setNewPrice={setNewPrice}
+                                newStartTime={newStartTime} setNewStartTime={setNewStartTime}
+                                newEndTime={newEndTime} setNewEndTime={setNewEndTime}
+                                newDate={newDate} setNewDate={setNewDate}
+                                newMaxParticipants={newMaxParticipants} setNewMaxParticipants={setNewMaxParticipants}
+                                newParticipants={newParticipants} setNewParticipants={setNewParticipants}
+                                isNewEvent={true} />
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-dismiss="modal" ref={newEventCancelButton}>Close</button>
+                            <button type="button" className="btn btn-primary" onClick={() => {
+                                //make new product p with values from form
+                                var e = createNewEvent();
+                                e = updateEventValues(e);
+                                addEvent(e);
+
+                                newEventCancelButton.current.click(); // close modal
+                                }
+                            }>Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* new event button */}
+            <button className="btn btn-primary m-3" 
+                onClick={() => { // onClick function sets all new value states to default values
+                    setActiveEvent(0)
+                    var e = createNewEvent()
+                    setNewTitle(e.title);
+                    setNewDescription(e.description);
+                    setNewPlace(e.place);
+                    setNewPrice(String(e.price).replace('.',','));
+                    setNewDate(e.date);
+                    setNewStartTime(e.startTime);
+                    setNewEndTime(e.endTime);
+                    setNewMaxParticipants(e.maxParticipants);
+                    setNewParticipants(e.eventParticipantName);
+                }} 
+                data-toggle="modal"
+                data-target="#newEventModal"
+            >New Event</button>
+
+            {/* actual list and detail */}
+            <div className="container-fluid mb-5">
                 <div className="row">
                     <div className="col-4">
                         <ItemList 

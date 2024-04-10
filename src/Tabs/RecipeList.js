@@ -9,8 +9,9 @@ import ItemList from "../Components/ItemList";
 // renders the list of recipes and the active recipe if one is selected (activeRecipe state lifted to parent so it can be used by other tabs)
 // activeRecipe      - state tracking which user is active
 // setActiveRecipe   - function used to set the active recipe
+// moveToComment     - function which sets active comment and active tab in order to switch to the view of specified comment
 const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
-
+    // Query Client used to force a refetch after any changes (PUT/POST/DELETE) are made
     const queryClient = useQueryClient();
     // GET methods
     const {status: recipeStatus, error: recipeError, data: recipes} = useQuery({
@@ -26,7 +27,7 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
         queryFn: getProducts,
     })
 
-    //PUT/DELETE methods
+    // PUT/DELETE methods
     const putRecipeMutation = useMutation({
         mutationFn: putRecipe,
         onSuccess: () => {
@@ -56,14 +57,11 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
 
     // function which updates recipes state (called when info is changed in SelectedRecipe)
     // recipeId              - id of the recipe to be changed
-    // updatedTitle          - new title (if changed, otherwise previous value)
-    // updatedIngredients    - new ingredients (if changed, otherwise previous value)
-    // updatedInstructions   - new instructions (if changed, otherwise previous value)
-    function editRecipe(recipeId, updatedTitle, updatedIngredients, updatedInstructions) {
+    function editRecipe(recipeId) {
         var recipe = recipes.find(recipe => recipe.id == recipeId);
-        recipe.title = updatedTitle;
-        recipe.ingredients = updatedIngredients;
-        recipe.instructions = updatedInstructions;
+        recipe.title = newTitle;
+        recipe.ingredients = newIngredients;
+        recipe.instructions = newInstructions;
         updateRecipe(recipeId, recipe);
     }
 
@@ -71,7 +69,6 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
     // rid      - id of the recipe (in recipes) to be sent
     // recipe   - recipe data to send with PUT
     async function updateRecipe(rid, recipe) {
-        //const recipe = recipes.find(r => r.id == rid); // find user
         const recipeJSON = JSON.stringify(recipe); // make it JSON
         console.log(recipeJSON);
 
@@ -84,6 +81,7 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
         }
     }
 
+    // function which sends DELETE request to remove a recipe from DB (not implemented)
     function removeRecipe(id) {
         console.log('fake deleting:', id)
     }
@@ -91,6 +89,8 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
     // reference to the cancel button used to close modal
     const cancelButton = useRef(null);
 
+    // function defining behavior for modal onclicking confirmation button
+    // sent to the delete modal
     function onModalConfirm() {
         const rid = recipes.find(u => u.id == activeRecipe).id;
         removeRecipe(rid);
@@ -103,6 +103,7 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
     var LoadFailed = [recipeStatus, ingredientStatus].some(value => value == 'error')
     return ( isLoading ? <div>Loading...</div> : (LoadFailed ? <div>Load Failed, Please try again.</div> :
         <>
+            {/* Modal component, renders modal when delete button is pressed */}
             <ConfirmDeleteModal 
                 modalId={'deleteRecipeModal'}
                 modalTitle={'Remove Recipe Confirmation'}
