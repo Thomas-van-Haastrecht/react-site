@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import TextInput from "../Components/Form/TextInput";
+import NumberInput from "../Components/Form/NumberInput";
+import TextArea from "../Components/Form/TextArea";
+import PriceInput from "../Components/Form/PriceInput";
 
 // renders edit form for the selected product as well as its info
 // editProduct            - function to change product (called when submitting form)
@@ -104,48 +108,39 @@ const SelectedProduct = ({
 
                         {/* input for name */}
                         <div className="text-danger mx-sm-3">{formErrors.name}</div>
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Name</div>
-                            <input className="form-control"
-                                value={newName}
-                                onChange={e => setNewName(e.target.value)}
-                                onBlur={e => {
-                                    e.target = e.target.parentElement.parentElement; // set target to the form
-                                    handleSubmit(e);
-                                    }
+                        <TextInput 
+                            label={'Name'}
+                            value={newName}
+                            onChange={e => setNewName(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
                                 }
-                                type="text"
-                                id="name"
-                                placeholder={product.name}
-                            />
-                        </div>
+                            }
+                            id={'name'}
+                            placeholder={product.name}
+                        />
 
                         {/* input for price */}
                         <div className="text-danger mx-sm-3">{formErrors.price}</div>
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Price</div>
-                            <div className="input-group-prepend input-group-text bg-white">€</div>
-                            <input className="form-control"
-                                value={newPrice}
-                                pattern="^\d*(,\d\d?)?$"
-                                onChange={e => {
-                                    const value = e.target.value;
-                                    const check = new RegExp('^\\d*,?\\d*$').test(value)
-                                    console.log(value, check)
-                                    if (check) {
-                                        setNewPrice(value)
-                                    }
-                                }}
-                                onBlur={e => {
-                                    e.target = e.target.parentElement.parentElement; // set target to the form
-                                    handleSubmit(e);
-                                }}
-                                type="text"
-                                step="any"
-                                id="price"
-                                placeholder={product.price}
-                            />
-                        </div>
+                        <PriceInput
+                            label={'Price'}
+                            value={newPrice}
+                            onChange={e => {
+                                const value = e.target.value;
+                                const check = new RegExp('^\\d*(,\\d?\\d?)?$').test(value)
+                                if (check) {
+                                    setNewPrice(value)}
+                                }
+                            }
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
+                                }
+                            }
+                            id={'price'}
+                            placeholder={product.price}
+                        />
 
                         {/* input for amount */}
                         <div className="text-danger mx-sm-3">{formErrors.amount}</div>
@@ -188,60 +183,52 @@ const SelectedProduct = ({
 
                         {/* input for calories */}
                         <div className="text-danger mx-sm-3">{formErrors.calories}</div>
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Calories</div>
-                            <input className="form-control"
-                                value={newCalories}
-                                onChange={e => setNewCalories(e.target.value)}
-                                onBlur={e => {
-                                    e.target = e.target.parentElement.parentElement; // set target to the form
-                                    handleSubmit(e);
-                                    }
+                        <NumberInput 
+                            label={'Calories'}
+                            value={newCalories}
+                            onChange={e => setNewCalories(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
                                 }
-                                type="number"
-                                step="1"
-                                id="calories"
-                                placeholder={product.calories}
-                            />
-                        </div>
+                            }
+                            step={'1'}
+                            id={'calories'}
+                            placeholder={product.calories}
+                        />
 
                         {/* input for description */}
                         <div className="text-danger mx-sm-3">{formErrors.description}</div>
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Description</div>
-                            <textarea className="form-control"
-                                value={newDescription}
-                                rows='3'
-                                onChange={e => setNewDescription(e.target.value)}
-                                onBlur={e => {
-                                    e.target = e.target.parentElement.parentElement; // set target to the form
-                                    handleSubmit(e);
-                                    }
+                        <TextArea 
+                            label={'Description'}
+                            value={newDescription}
+                            rows='3'
+                            onChange={e => setNewDescription(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
                                 }
-                                type="text"
-                                id="description"
-                                placeholder={product.description}
-                            />
-                        </div>
+                            }
+                            type="text"
+                            id="description"
+                            placeholder={product.description}
+                        />
 
                         {/* input for smallestAmount */}
                         <div className="text-danger mx-sm-3">{formErrors.smallest}</div>
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Minimum</div>
-                            <input className="form-control"
-                                value={newSmallestAmount}
-                                onChange={e => setNewSmallestAmount(e.target.value)}
-                                onBlur={e => {
-                                    e.target = e.target.parentElement.parentElement; // set target to the form
-                                    handleSubmit(e);
-                                    }
+                        <NumberInput 
+                            label={'Minimum'}
+                            value={newSmallestAmount}
+                            onChange={e => setNewSmallestAmount(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
                                 }
-                                type="number"
-                                step="1"
-                                id="smallestAmount"
-                                placeholder={product.smallestAmount}
-                            />
-                        </div>
+                            }
+                            step={'1'}
+                            id={'smallestAmount'}
+                            placeholder={product.smallestAmount}
+                        />
 
                         {/* input for packaging types */}
                         <div className="text-danger mx-sm-3">{formErrors.packaging}</div>

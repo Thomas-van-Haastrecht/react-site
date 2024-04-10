@@ -1,5 +1,6 @@
 import React from "react";
 import '../assets/form.css'
+import TextInput from "../Components/Form/TextInput";
 
 // renders edit form for the selected recipe as well as its info
 // editComment     - function to change comment (called when submitting form)
@@ -44,17 +45,18 @@ const SelectedComment = ({editComment, comment, newComment, setNewComment, newRa
                         <input type="hidden" value={comment.id} id="commentId" />
 
                         {/* input for comment */}
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Text</div>
-                            <textarea className="form-control"
-                                value={newComment}
-                                rows='3'
-                                onChange={e => setNewComment(e.target.value)}
-                                type="text"
-                                id="comment"
-                                placeholder={comment.comment}
-                            />
-                        </div>
+                        <TextInput 
+                            label={'Text'}
+                            value={newComment}
+                            onChange={e => setNewComment(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
+                                }
+                            }
+                            id={'comment'}
+                            placeholder={comment.comment}
+                        />
 
                         <div id="rating-stars">
                             {[1,2,3,4,5].map(i => {

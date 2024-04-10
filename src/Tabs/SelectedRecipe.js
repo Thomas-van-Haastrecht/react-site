@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import React from "react";
 import '../assets/form.css'
+import TextInput from "../Components/Form/TextInput";
 
 // renders edit form for the selected recipe as well as its info
 // editRecipe           - function to change recipe (called when submitting form)
@@ -35,7 +36,6 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
         }
         if (newInstructions.length > 0) {
             var textbox = document.getElementById(newInstructions.length-1);
-    
             textbox.focus();
         }
     }, [newInstruction]);
@@ -128,16 +128,18 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
 
                         {/* input for title */}
                         <div className="text-danger mx-sm-3">{formErrors.title}</div>
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Title</div>
-                            <input className="form-control"
-                                value={newTitle}
-                                onChange={e => setNewTitle(e.target.value)}
-                                type="text"
-                                id="title"
-                                placeholder={recipe.title}
-                            />
-                        </div>
+                        <TextInput
+                            label={'Title'}
+                            value={newTitle}
+                            onChange={e => setNewTitle(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
+                                }
+                            }
+                            id={'title'}
+                            placeholder={recipe.title}
+                        />
 
                         {/* input for ingredients */}
                         <label htmlFor="ingredients" className="control-label mx-sm-3">Ingredients:</label>

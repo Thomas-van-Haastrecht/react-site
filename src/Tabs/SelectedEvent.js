@@ -1,5 +1,11 @@
 import React from "react";
 import '../assets/form.css'
+import TextInput from "../Components/Form/TextInput";
+import TextArea from "../Components/Form/TextArea";
+import NumberInput from "../Components/Form/NumberInput";
+import TimeInput from "../Components/Form/TimeInput";
+import DateInput from "../Components/Form/DateInput";
+import PriceInput from "../Components/Form/PriceInput";
 
 // renders edit form for the selected recipe as well as its info
 // editEvent               - function to change event (called when submitting form)
@@ -54,124 +60,128 @@ const SelectedEvent = ({editEvent, removeParticipant, event, newTitle, setNewTit
                         <input type="hidden" value={event.id} id="eventId" />
 
                         {/* input for title */}
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Title</div>
-                            <input className="form-control"
-                                value={newTitle}
-                                onChange={e => setNewTitle(e.target.value)}
-                                type="text"
-                                id="title"
-                                placeholder={event.title}
-                            />
-                        </div>
+                        <TextInput 
+                            label={'Title'}
+                            value={newTitle}
+                            onChange={e => setNewTitle(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
+                                }
+                            }
+                            id={'title'}
+                            placeholder={event.title}
+                        />
 
                         {/* input for description */}
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Description</div>
-                            <textarea className="form-control"
-                                value={newDescription}
-                                rows='3'
-                                onChange={e => setNewDescription(e.target.value)}
-                                type="text"
-                                id="description"
-                                placeholder={event.description}
-                            />
-                        </div>
+                        <TextArea
+                            label={'Description'}
+                            value={newDescription}
+                            rows='3'
+                            onChange={e => setNewDescription(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
+                                }
+                            }
+                            type="text"
+                            id="description"
+                            placeholder={event.description}
+                        />
 
                         {/* input for place */}
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Place</div>
-                            <input className="form-control"
-                                value={newPlace}
-                                onChange={e => setNewPlace(e.target.value)}
-                                type="text"
-                                id="place"
-                                placeholder={event.place}
-                            />
-                        </div>
+                        <TextInput 
+                            label={'Place'}
+                            value={newPlace}
+                            onChange={e => setNewPlace(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
+                                }
+                            }
+                            id={'place'}
+                            placeholder={event.place}
+                        />
 
                         {/* input for price */}
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Price</div>
-                            <div className="input-group-prepend input-group-text bg-white">€</div>
-                            <input className="form-control border-left-0"
-                                value={newPrice}
-                                pattern="^\d*(,\d\d?)?$"
-                                onChange={e => {
-                                    const value = e.target.value;
-                                    const check = new RegExp('^\\d*,?\\d*$').test(value)
-                                    console.log(value, check)
-                                    if (check) {
-                                        setNewPrice(value)}
-                                    }
+                        <PriceInput 
+                            label={'Price'}
+                            value={newPrice}
+                            onChange={e => {
+                                const value = e.target.value;
+                                const check = new RegExp('^\\d*(,\\d?\\d?)?$').test(value)
+                                console.log(value, check)
+                                if (check) {
+                                    setNewPrice(value)}
                                 }
-                                onBlur={e => {
-                                    e.target = e.target.parentElement.parentElement; // set target to the form
-                                    handleSubmit(e);
-                                    }
+                            }
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
                                 }
-                                type="text"
-                                step="any"
-                                id="price"
-                                placeholder={event.price}
-                            />
-                        </div>
+                            }
+                            id={'price'}
+                            placeholder={event.price}
+                        />
 
                         {/* input for date */}
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Date</div>
-                            <input className="form-control"
-                                value={newDate}
-                                onChange={e => setNewDate(e.target.value)}
-                                type="date"
-                                id="date"
-                                placeholder={event.date}
-                            />
-                        </div>
+                        <DateInput 
+                            label={'Date'}
+                            value={newDate}
+                            onChange={e => setNewDate(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
+                                }
+                            }
+                            id={'date'}
+                            placeholder={event.date}
+                        />
                         
                         {/* input for start time */}
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Start Time</div>
-                            <input className="form-control"
-                                value={newStartTime}
-                                onChange={e => setNewStartTime(e.target.value)}
-                                type="time"
-                                step="1"
-                                id="startTime"
-                                placeholder={event.startTime}
-                            />
-                        </div>
+                        <TimeInput 
+                            label={'Start Time'}
+                            value={newStartTime}
+                            onChange={e => setNewStartTime(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
+                                }
+                            }
+                            step={'1'}
+                            id={'startTime'}
+                            placeholder={event.startTime}
+                        />
 
                         {/* input for end time */}
-                        <div className="input-group mx-sm-3 mb-2">
-                        <div className="input-group-prepend input-group-text form-begin-tag">End Time</div>
-                            <input className="form-control"
-                                value={newEndTime}
-                                onChange={e => setNewEndTime(e.target.value)}
-                                type="time"
-                                step="1"
-                                id="endTime"
-                                placeholder={event.endTime}
-                            />
-                        </div>
+                        <TimeInput 
+                            label={'End Time'}
+                            value={newEndTime}
+                            onChange={e => setNewEndTime(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
+                                }
+                            }
+                            step={'1'}
+                            id={'endTime'}
+                            placeholder={event.endTime}
+                        />
 
                         {/* input for max participants */}
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Capacity</div>
-                            <input className="form-control"
-                                value={newMaxParticipants}
-                                onChange={e => setNewMaxParticipants(e.target.value)}
-                                onBlur={e => {
-                                    e.target = e.target.parentElement.parentElement; // set target to the form
-                                    handleSubmit(e);
-                                    }
+                        <NumberInput 
+                            label={'Capacity'}
+                            value={newMaxParticipants}
+                            onChange={e => setNewMaxParticipants(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
                                 }
-                                type="number"
-                                step="1"
-                                id="maxParticipants"
-                                placeholder={event.maxParticipants}
-                            />
-                        </div>
+                            }
+                            step={'1'}
+                            id={'maxParticipants'}
+                            placeholder={event.maxParticipants}
+                        />
                     </form>
 
                     {!isNewEvent && 

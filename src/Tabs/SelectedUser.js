@@ -3,6 +3,7 @@ import { getUser } from "../api/users";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import '../assets/form.css'
 import { useEffect, useState } from "react";
+import TextInput from "../Components/Form/TextInput";
 
 // renders edit form for the selected user as well as their info
 // editUser        - function to change user (called when submitting form)
@@ -72,42 +73,48 @@ const SelectedUser = ({editUser, activeUser, newName, setNewName, newEmail, setN
 
                         {/* input for name */}
                         <div className="text-danger mx-sm-3">{formErrors.name}</div>
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Name</div>
-                            <input className="form-control"
-                                value={newName}
-                                onChange={e => setNewName(e.target.value)}
-                                type="text"
-                                id="name"
-                                placeholder={userInfo.userFirstName}
-                            />
-                        </div>
+                        <TextInput 
+                            label={'Name'}
+                            value={newName}
+                            onChange={e => setNewName(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
+                                }
+                            }
+                            id={'name'}
+                            placeholder={userInfo.userFirstName}
+                        />
 
                         {/* input for email */}
                         <div className="text-danger mx-sm-3">{formErrors.email}</div>
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">Email</div>
-                            <input className="form-control"
-                                value={newEmail}
-                                onChange={e => setNewEmail(e.target.value)}
-                                type="text"
-                                id="email"
-                                placeholder={userInfo.userEmail}
-                            />
-                        </div>
+                        <TextInput 
+                            label={'Email'}
+                            value={newEmail}
+                            onChange={e => setNewEmail(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
+                                }
+                            }
+                            id={'email'}
+                            placeholder={userInfo.userEmail}
+                        />
 
                         {/* input for city */}
                         <div className="text-danger mx-sm-3">{formErrors.city}</div>
-                        <div className="input-group mx-sm-3 mb-2">
-                            <div className="input-group-prepend input-group-text form-begin-tag">City</div>
-                            <input className="form-control"
-                                value={newCity}
-                                onChange={e => setNewCity(e.target.value)}
-                                type="text"
-                                id="city"
-                                placeholder={userInfo.userCityOfResidence}
-                            />
-                        </div>
+                        <TextInput 
+                            label={'City'}
+                            value={newCity}
+                            onChange={e => setNewCity(e.target.value)}
+                            onBlur={e => {
+                                e.target = e.target.parentElement.parentElement; // set target to the form
+                                handleSubmit(e);
+                                }
+                            }
+                            id={'city'}
+                            placeholder={userInfo.userCityOfResidence}
+                        />
                     </form>
                     
                     {/* recipes, not fully implemented */}
