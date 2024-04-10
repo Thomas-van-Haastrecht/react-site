@@ -64,7 +64,7 @@ const UserList = ({moveToComment, moveToRecipe}) => {
     // uid            - id of the user to be changed
     function editUser(uid) {
         var user = users.find(u => u.id == uid)
-        user.name = newName;
+        user.firstName = newName;
         user.email = newEmail;
         user.cityOfResidence = newCity;
         //setUsers(changedUsers);
