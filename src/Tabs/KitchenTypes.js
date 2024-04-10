@@ -137,7 +137,8 @@ const KitchenTypes = () => {
                 modalTitle={'Remove Kitchen Type Confirmation'}
                 divInfoId={'toDeleteKitchenInfo'}
                 cancelButtonRef={confirmDeleteCancelButton}
-                onConfirm={onDeleteModalConfirm} />
+                onConfirm={onDeleteModalConfirm}
+            />
 
             <button className="btn btn-primary m-3" onClick={() => setActiveKitchenType(0)} data-toggle="modal" data-target="#newKitchenTypeModal">New Kitchen Type</button>
             <div className="row">
@@ -147,7 +148,8 @@ const KitchenTypes = () => {
                         displayParam={'name'}
                         setActive={setActiveKitchenType}
                         divInfoId={'toDeleteKitchenInfo'}
-                        modalId={'deleteKitchenModal'} />
+                        modalId={'deleteKitchenModal'}
+                    />
                 </div>
                 <div className="col-6">
                     {activeKitchenType > 0 &&

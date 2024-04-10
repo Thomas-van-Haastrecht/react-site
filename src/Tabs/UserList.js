@@ -119,7 +119,8 @@ const UserList = ({moveToComment, moveToRecipe}) => {
                 modalTitle={'Remove User Confirmation'}
                 divInfoId={'toDeleteUserInfo'}
                 cancelButtonRef={cancelButton}
-                onConfirm={onModalConfirm} />
+                onConfirm={onModalConfirm}
+            />
 
             {/* actual code, list of items and selected item */}
             <div className="container-fluid mt-5">
@@ -130,7 +131,8 @@ const UserList = ({moveToComment, moveToRecipe}) => {
                             displayParam={'firstName'}
                             setActive={setActiveUser}
                             divInfoId={'toDeleteUserInfo'}
-                            modalId={'deleteUserModal'} />
+                            modalId={'deleteUserModal'}
+                        />
                     </div>
                     <div className="col-6">
                         <div>
@@ -141,7 +143,8 @@ const UserList = ({moveToComment, moveToRecipe}) => {
                                     newName={newName} setNewName={setNewName}
                                     newEmail={newEmail} setNewEmail={setNewEmail}
                                     newCity={newCity} setNewCity={setNewCity}
-                                    moveToRecipe={moveToRecipe} moveToComment={moveToComment} />
+                                    moveToRecipe={moveToRecipe} moveToComment={moveToComment}
+                                />
                             }
                         </div>
                     </div>

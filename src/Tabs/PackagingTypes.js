@@ -138,7 +138,8 @@ const PackagingTypes = () => {
                 modalTitle={'Remove Packaging Confirmation'}
                 divInfoId={'toDeletePackagingInfo'}
                 cancelButtonRef={confirmDeleteCancelButton}
-                onConfirm={onDeleteModalConfirm} />
+                onConfirm={onDeleteModalConfirm}
+            />
 
             <button className="btn btn-primary m-3" onClick={() => setActivePackaging(0)} data-toggle="modal" data-target="#newPackagingModal">New Packaging Type</button>
             <div className="row">
@@ -148,7 +149,8 @@ const PackagingTypes = () => {
                         displayParam={'name'}
                         setActive={setActivePackaging}
                         divInfoId={'toDeletePackagingInfo'}
-                        modalId={'deletePackagingModal'} />
+                        modalId={'deletePackagingModal'}
+                    />
                 </div>
                 <div className="col-6">
                     {activePackaging > 0 &&

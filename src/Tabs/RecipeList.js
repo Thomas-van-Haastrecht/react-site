@@ -109,7 +109,8 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
                 modalTitle={'Remove Recipe Confirmation'}
                 divInfoId={'toDeleteRecipeInfo'}
                 cancelButtonRef={cancelButton}
-                onConfirm={onModalConfirm} />
+                onConfirm={onModalConfirm}
+            />
             
             <div className="container-fluid mt-5">
                 <div className="row">
@@ -119,7 +120,8 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
                             displayParam={'title'}
                             setActive={setActiveRecipe}
                             divInfoId={'toDeleteRecipeInfo'}
-                            modalId={'deleteRecipeModal'} />
+                            modalId={'deleteRecipeModal'}
+                        />
                     </div>
                     <div className="col-6">
                         <div>
@@ -131,7 +133,8 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
                                 newTitle={newTitle} setNewTitle={setNewTitle}
                                 newIngredients={newIngredients} setNewIngredients={setNewIngredients}
                                 newInstructions={newInstructions} setNewInstructions={setNewInstructions}
-                                moveToComment={moveToComment} />
+                                moveToComment={moveToComment}
+                            />
                         </div>
                     </div>
                 </div>

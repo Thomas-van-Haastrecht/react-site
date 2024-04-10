@@ -116,7 +116,8 @@ const CommentList = ({activeComment, setActiveComment}) => {
                 modalTitle={'Remove Comment Confirmation'}
                 divInfoId={'toDeleteCommentInfo'}
                 cancelButtonRef={cancelButton}
-                onConfirm={onModalConfirm} />
+                onConfirm={onModalConfirm}
+            />
 
             <div className="container-fluid mt-5">
                 <div className="row">
@@ -126,7 +127,8 @@ const CommentList = ({activeComment, setActiveComment}) => {
                             displayParam={'comment'}
                             setActive={setActiveComment}
                             divInfoId={'toDeleteCommentInfo'}
-                            modalId={'deleteCommentModal'} />
+                            modalId={'deleteCommentModal'}
+                        />
                     </div>
                     <div className="col-6">
                         <div>
@@ -136,7 +138,8 @@ const CommentList = ({activeComment, setActiveComment}) => {
                                     editComment={editComment}
                                     comment={comments.find(c => c.id == activeComment)}
                                     newComment={newComment} setNewComment={setNewComment}
-                                    newRating={newRating} setNewRating={setNewRating} />
+                                    newRating={newRating} setNewRating={setNewRating}
+                                />
                             }
                         </div>
                     </div>
