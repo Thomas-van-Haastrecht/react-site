@@ -103,7 +103,7 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
         setNewIngredients(previousIngredients => {
             return previousIngredients.map(ingredient => {
                 if (ingredient.id == ingredientId) { // only edit the correct user
-                    ingredient.amount = updatedAmount;
+                    ingredient.amount = +updatedAmount;
                     var product = products.find(p => p.id == updatedProductId)
                     ingredient.name = product.name;
                     ingredient.productId = product.id;
@@ -113,7 +113,7 @@ const SelectedRecipe = ({editRecipe, recipe, ingredientTypes, products, newTitle
                 return ingredient;
             })
         });
-        editRecipe(recipe.id, recipe.title, newIngredients, newInstructions);
+        editRecipe(recipe.id);
     }
 
     return (

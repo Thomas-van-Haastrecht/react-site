@@ -59,10 +59,20 @@ const RecipeList = ({activeRecipe, setActiveRecipe, moveToComment}) => {
     // recipeId              - id of the recipe to be changed
     function editRecipe(recipeId) {
         var recipe = recipes.find(recipe => recipe.id == recipeId);
-        recipe.title = newTitle;
-        recipe.ingredients = newIngredients;
-        recipe.instructions = newInstructions;
-        updateRecipe(recipeId, recipe);
+        console.log(newIngredients)
+        const p = new Promise((resolve) => {
+            recipe.title = newTitle;
+            recipe.ingredients = newIngredients;
+            recipe.instructions = newInstructions;
+            resolve(recipe)
+        })
+        p.then(result => {updateRecipe(recipeId, result)})
+        // recipe.title = newTitle;
+        // recipe.ingredients = newIngredients;
+        // recipe.instructions = newInstructions;
+        // const r = recipe;
+        // console.log(r)
+        // updateRecipe(recipeId, r);
     }
 
     // function which sends updated recipe
